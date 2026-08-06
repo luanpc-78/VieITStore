@@ -1,0 +1,148 @@
+﻿@model VieITStore.Models.Entities.DonHang
+@{
+    ViewData["Title"] = $"Đơn hàng {Model.MaDonHang}";
+    var coTheHuy = Model.TrangThai == VieITStore.Models.Entities.TrangThaiDonHang.ChoXacNhan
+                || Model.TrangThai == VieITStore.Models.Entities.TrangThaiDonHang.DaXacNhan;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index")">Đơn hàng</a></li>
+            <li class="breadcrumb-item active">@Model.MaDonHang</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between">
+                    <span>Thông tin đơn hàng</span>
+                    <span class="badge @(Model.TrangThai == VieITStore.Models.Entities.TrangThaiDonHang.DaHuy ? "bg-danger" : "bg-primary")">@Model.TrangThai</span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Mã đơn:</strong> @Model.MaDonHang</p>
+                            <p><strong>Ngày đặt:</strong> @Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p><strong>Ngày giao dự kiến:</strong> @(Model.NgayGiaoDuKien?.ToString("dd/MM/yyyy") ?? "Đang cập nhật")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Phương thức TT:</strong> @Model.PhuongThucThanhToan</p>
+                            <p>
+                                <strong>Trạng thái TT:</strong>
+                                @if (Model.DaThanhToan)
+                                {
+                                    <span class="badge bg-success">Đã thanh toán</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Chưa thanh toán</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <h6>Chi tiết sản phẩm</h6>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Sản phẩm</th>
+                                <th class="text-center">Đơn giá</th>
+                                <th class="text-center">SL</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int stt = 1;
+                            }
+                            @foreach (var ct in Model.ChiTietDonHangs)
+                            {
+                                <tr>
+                                    <td>@stt</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(ct.SanPham?.HinhAnh ?? "/images/no-image.jpg")" class="me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            @ct.SanPham?.TenSanPham
+                                        </div>
+                                    </td>
+                                    <td class="text-center">@ct.DonGia.ToString("N0") đ</td>
+                                    <td class="text-center">@ct.SoLuong</td>
+                                    <td class="text-end">@ct.ThanhTien.ToString("N0") đ</td>
+                                </tr>
+                                stt++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            @if (coTheHuy)
+            {
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <h6 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Hủy đơn hàng</h6>
+                        <form asp-action="HuyDon" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <div class="mb-3">
+                                <textarea name="lyDo" class="form-control" placeholder="Lý do hủy đơn (bắt buộc)" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?')">
+                                <i class="fas fa-times"></i> Hủy đơn hàng
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header">Thông tin giao hàng</div>
+                <div class="card-body">
+                    <p><strong>Người nhận:</strong> @Model.HoTenNguoiNhan</p>
+                    <p><strong>SĐT:</strong> @Model.SoDienThoaiNguoiNhan</p>
+                    <p><strong>Địa chỉ:</strong> @Model.DiaChiGiaoHang</p>
+                    @if (!string.IsNullOrEmpty(Model.GhiChu))
+                    {
+                        <p><strong>Ghi chú:</strong> @Model.GhiChu</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Tóm tắt thanh toán</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính:</span>
+                        <span>@Model.TongTienHang.ToString("N0") đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Phí vận chuyển:</span>
+                        <span>@Model.PhiVanChuyen.ToString("N0") đ</span>
+                    </div>
+                    @if (Model.GiamGia > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Giảm giá:</span>
+                            <span class="text-success">-@Model.GiamGia.ToString("N0") đ</span>
+                        </div>
+                    }
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Tổng cộng:</span>
+                        <span class="fw-bold text-danger fs-5">@Model.TongThanhToan.ToString("N0") đ</span>
+                    </div>
+                </div>
+            </div>
+            @if (Model.DaThanhToan)
+            {
+                <a asp-controller="HoaDon" asp-action="Index" class="btn btn-outline-primary w-100 mt-3">
+                    <i class="fas fa-file-invoice"></i> Xem hóa đơn của tôi
+                </a>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+﻿@model List<VieITStore.Models.Entities.DonHang>
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="container py-4">
+    <h3><i class="fas fa-box-open"></i> Đơn hàng của tôi</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-box fa-4x text-muted mb-3"></i>
+            <h4>Chưa có đơn hàng nào</h4>
+            <a href="@Url.Action("Index", "SanPham")" class="btn btn-primary">Mua sắm ngay</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var dh in Model)
+        {
+            var badgeClass = dh.TrangThai switch
+            {
+                VieITStore.Models.Entities.TrangThaiDonHang.ChoXacNhan => "bg-warning text-dark",
+                VieITStore.Models.Entities.TrangThaiDonHang.DaXacNhan => "bg-info",
+                VieITStore.Models.Entities.TrangThaiDonHang.DangGiao => "bg-primary",
+                VieITStore.Models.Entities.TrangThaiDonHang.DaGiao => "bg-success",
+                VieITStore.Models.Entities.TrangThaiDonHang.HoanThanh => "bg-success",
+                VieITStore.Models.Entities.TrangThaiDonHang.DaHuy => "bg-danger",
+                _ => "bg-secondary"
+            };
+
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fw-bold">@dh.MaDonHang</span>
+                        <span class="text-muted ms-3"><i class="far fa-calendar"></i> @dh.NgayDat.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <span class="badge @badgeClass">@dh.TrangThai</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            @foreach (var ct in dh.ChiTietDonHangs.Take(2))
+                            {
+                                <div class="d-flex align-items-center mb-2">
+                                    <img src="@(ct.SanPham?.HinhAnh ?? "/images/no-image.jpg")" class="me-2" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                    <div>
+                                        <div>@ct.SanPham?.TenSanPham</div>
+                                        <small class="text-muted">@ct.SoLuong x @ct.DonGia.ToString("N0") đ</small>
+                                    </div>
+                                </div>
+                            }
+                            @if (dh.ChiTietDonHangs.Count > 2)
+                            {
+                                <small class="text-muted">+ @(dh.ChiTietDonHangs.Count - 2) sản phẩm khác</small>
+                            }
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="mb-2">
+                                <span class="text-muted">Tổng tiền:</span>
+                                <span class="fw-bold text-danger">@dh.TongThanhToan.ToString("N0") đ</span>
+                            </div>
+                            <div class="mb-2">
+                                @if (dh.DaThanhToan)
+                                {
+                                    <span class="badge bg-success">Đã thanh toán</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Chưa thanh toán</span>
+                                }
+                            </div>
+                            <a href="@Url.Action("ChiTiet", new { id = dh.Id })" class="btn btn-outline-primary btn-sm">Chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
