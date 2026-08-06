@@ -1,0 +1,91 @@
+﻿@model VieITStore.Models.Entities.SanPham
+@{
+    ViewData["Title"] = Model.TenSanPham;
+    var sanPhamLienQuan = ViewBag.SanPhamLienQuan as List<VieITStore.Models.Entities.SanPham>;
+    var giaHienTai = Model.GiaKhuyenMai ?? Model.GiaBan;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", new { danhMucId = Model.DanhMucId })">@Model.DanhMuc?.TenDanhMuc</a></li>
+            <li class="breadcrumb-item active">@Model.TenSanPham</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <img src="@(Model.HinhAnh ?? "/images/no-image.jpg")" class="card-img-top" alt="@Model.TenSanPham" style="max-height: 400px; object-fit: contain;">
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <h3>@Model.TenSanPham</h3>
+            <p class="text-muted">Mã SP: @Model.MaSanPham | Thương hiệu: @Model.ThuongHieu | Bảo hành: @Model.BaoHanh tháng</p>
+
+            <div class="mb-3">
+                @if (Model.GiaKhuyenMai.HasValue)
+                {
+                    <h2 class="text-danger fw-bold">@Model.GiaKhuyenMai.Value.ToString("N0") đ</h2>
+                    <span class="old-price fs-5">@Model.GiaBan.ToString("N0") đ</span>
+                    <span class="badge bg-danger ms-2">Tiết kiệm @((Model.GiaBan - Model.GiaKhuyenMai.Value).ToString("N0")) đ</span>
+                }
+                else
+                {
+                    <h2 class="text-primary fw-bold">@Model.GiaBan.ToString("N0") đ</h2>
+                }
+            </div>
+
+            <div class="card bg-light mb-3">
+                <div class="card-body">
+                    <h6><i class="fas fa-info-circle"></i> Thông tin sản phẩm</h6>
+                    <p>@(Model.MoTaNgan ?? "Chưa có mô tả")</p>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="fas fa-check text-success"></i> Hàng chính hãng 100%</li>
+                        <li><i class="fas fa-check text-success"></i> Bảo hành @Model.BaoHanh tháng</li>
+                        <li><i class="fas fa-check text-success"></i> Đổi trả trong 7 ngày</li>
+                        <li><i class="fas fa-check text-success"></i> Giao hàng toàn quốc</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-lg" onclick="addToCartWithQty(@Model.Id)" disabled="@(Model.SoLuongTon <= 0)">
+                    <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                </button>
+                <a href="@Url.Action("Index", "GioHang")" class="btn btn-warning btn-lg">
+                    <i class="fas fa-shopping-cart"></i> Xem giỏ hàng
+                </a>
+            </div>
+
+            <hr>
+            <h6>Mô tả chi tiết</h6>
+            <p>@(Model.MoTaChiTiet ?? "Chưa có mô tả chi tiết")</p>
+        </div>
+    </div>
+
+    @if (sanPhamLienQuan?.Any() == true)
+    {
+        <hr class="my-5">
+        <h4 class="mb-4">Sản phẩm liên quan</h4>
+        <div class="row g-3">
+            @foreach (var sp in sanPhamLienQuan)
+            {
+                <div class="col-md-3">
+                    <div class="card product-card h-100">
+                        <a href="@Url.Action("ChiTiet", new { id = sp.Id })">
+                            <img src="@(sp.HinhAnh ?? "/images/no-image.jpg")" class="card-img-top product-img" alt="@sp.TenSanPham">
+                        </a>
+                        <div class="card-body">
+                            <h6 class="card-title">@sp.TenSanPham</h6>
+                            <div class="price">@(sp.GiaKhuyenMai ?? sp.GiaBan).ToString("N0") đ</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
