@@ -1,0 +1,74 @@
+﻿@model VieITStore.Models.ViewModels.RegisterVM
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-plus fa-3x text-success"></i>
+                        <h4 class="mt-2">Tạo tài khoản mới</h4>
+                    </div>
+
+                    <form asp-action="DangKy" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="HoTen" class="form-label"></label>
+                            <input asp-for="HoTen" class="form-control" placeholder="Họ tên đầy đủ">
+                            <span asp-validation-for="HoTen" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TenDangNhap" class="form-label"></label>
+                            <input asp-for="TenDangNhap" class="form-control" placeholder="Tên đăng nhập">
+                            <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" class="form-control" placeholder="email@example.com">
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SoDienThoai" class="form-label"></label>
+                                <input asp-for="SoDienThoai" class="form-control" placeholder="0901234567">
+                                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MatKhau" class="form-label"></label>
+                                <input asp-for="MatKhau" class="form-control" placeholder="Mật khẩu">
+                                <span asp-validation-for="MatKhau" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="XacNhanMatKhau" class="form-label"></label>
+                                <input asp-for="XacNhanMatKhau" class="form-control" placeholder="Nhập lại mật khẩu">
+                                <span asp-validation-for="XacNhanMatKhau" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 btn-lg">
+                            <i class="fas fa-user-plus"></i> Đăng ký
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+                    <div class="text-center">
+                        <p>Đã có tài khoản? <a href="@Url.Action("DangNhap")">Đăng nhập</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+}
