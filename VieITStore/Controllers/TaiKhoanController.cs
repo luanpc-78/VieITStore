@@ -72,6 +72,7 @@ namespace VieITStore.Controllers
                 HttpContext.Session.SetString("UserName", user.HoTen);
                 HttpContext.Session.SetString("VaiTro", user.VaiTro.ToString());
 
+                await MergeSessionCart(user.Id, HttpContext.Session.Id);
                 user.LanDangNhapCuoi = DateTime.Now;
                 await _context.SaveChangesAsync();
 
@@ -87,6 +88,44 @@ namespace VieITStore.Controllers
                 _logger.LogError(ex, "Error in DangNhap POST");
                 ModelState.AddModelError("", "Có lỗi xảy ra: " + ex.Message);
                 return View(model);
+            }
+        }
+
+        private async Task MergeSessionCart(int userId, string sessionId)
+        {
+            var sessionItems = await _context.GioHangs
+                .Include(x => x.SanPham)
+                .Where(x => x.NguoiDungId == null && x.SessionId == sessionId)
+                .ToListAsync();
+            if (sessionItems.Count == 0) return;
+
+            var productIds = sessionItems.Select(x => x.SanPhamId).Distinct().ToList();
+            var userItems = await _context.GioHangs
+                .Where(x => x.NguoiDungId == userId && productIds.Contains(x.SanPhamId))
+                .ToDictionaryAsync(x => x.SanPhamId);
+
+            foreach (var sessionItem in sessionItems)
+            {
+                var stock = Math.Max(0, sessionItem.SanPham?.SoLuongTon ?? 0);
+                if (stock == 0)
+                {
+                    _context.GioHangs.Remove(sessionItem);
+                    continue;
+                }
+
+                if (userItems.TryGetValue(sessionItem.SanPhamId, out var userItem))
+                {
+                    var combinedQuantity = (long)userItem.SoLuong + sessionItem.SoLuong;
+                    userItem.SoLuong = (int)Math.Min(stock, combinedQuantity);
+                    _context.GioHangs.Remove(sessionItem);
+                }
+                else
+                {
+                    sessionItem.SoLuong = Math.Min(stock, sessionItem.SoLuong);
+                    sessionItem.NguoiDungId = userId;
+                    sessionItem.SessionId = null;
+                    userItems.Add(sessionItem.SanPhamId, sessionItem);
+                }
             }
         }
 

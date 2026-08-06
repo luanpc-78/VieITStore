@@ -29,6 +29,12 @@ public class ThanhToanController : Controller
 
         var cartItems = await LoadCart(userId.Value);
         if (cartItems.Count == 0) return RedirectToAction("Index", "GioHang");
+        ValidateCart(cartItems);
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = "Giỏ hàng có sản phẩm không hợp lệ. Vui lòng kiểm tra lại trước khi thanh toán.";
+            return RedirectToAction("Index", "GioHang");
+        }
 
         var customer = await _context.KhachHangs
             .AsNoTracking()
@@ -200,10 +206,13 @@ public class ThanhToanController : Controller
             Items = cartItems.Where(x => x.SanPham != null).Select(x => new GioHangItem
             {
                 SanPhamId = x.SanPhamId,
+                MaSanPham = x.SanPham!.MaSanPham,
                 TenSanPham = x.SanPham!.TenSanPham,
                 HinhAnh = x.SanPham.HinhAnh,
                 DonGia = x.SanPham.GiaKhuyenMai is > 0 ? x.SanPham.GiaKhuyenMai.Value : x.SanPham.GiaBan,
-                SoLuong = x.SoLuong
+                SoLuong = x.SoLuong,
+                SoLuongTon = x.SanPham.SoLuongTon,
+                DangBan = x.SanPham.TrangThai
             }).ToList()
         };
         model.DiaChiGiaoHangs = addresses.ToList();

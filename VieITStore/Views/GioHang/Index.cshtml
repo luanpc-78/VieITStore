@@ -1,0 +1,87 @@
+@model GioHangVM
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<div class="container py-4">
+    <h3 class="mb-3"><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h3>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (!Model.Items.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+            <h4>Giỏ hàng trống</h4>
+            <p>Hãy thêm sản phẩm vào giỏ hàng của bạn.</p>
+            <a asp-controller="SanPham" asp-action="Index" class="btn btn-primary">Tiếp tục mua sắm</a>
+        </div>
+    }
+    else
+    {
+        @if (!Model.CoTheThanhToan)
+        {
+            <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Giỏ hàng có sản phẩm không hợp lệ. Vui lòng cập nhật hoặc xóa trước khi thanh toán.</div>
+        }
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card"><div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th style="width:150px">Số lượng</th><th class="text-end">Thành tiền</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr class="@(!item.HopLe ? "table-warning" : "")">
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@(item.HinhAnh ?? "/images/no-image.jpg")" alt="@item.TenSanPham" style="width:64px;height:64px;object-fit:cover;border-radius:8px" />
+                                        <div><div class="fw-semibold">@item.TenSanPham</div><small class="text-muted">SKU: @item.MaSanPham · Tồn: @item.SoLuongTon</small>
+                                            @if (item.CanhBao != null) { <div class="text-danger small fw-semibold">@item.CanhBao</div> }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-end">@item.DonGia.ToString("N0") đ</td>
+                                <td>
+                                    <form asp-action="CapNhatSoLuong" method="post" class="d-flex gap-1">
+                                        <input type="hidden" name="sanPhamId" value="@item.SanPhamId" />
+                                        <input type="number" name="soLuong" value="@item.SoLuong" min="0" class="form-control form-control-sm text-center" aria-label="Số lượng @item.TenSanPham" />
+                                        <button class="btn btn-sm btn-outline-primary" title="Cập nhật"><i class="fas fa-sync"></i></button>
+                                    </form>
+                                </td>
+                                <td class="text-end fw-bold">@item.ThanhTien.ToString("N0") đ</td>
+                                <td class="text-end">
+                                    <form asp-action="XoaSanPham" method="post">
+                                        <input type="hidden" name="sanPhamId" value="@item.SanPhamId" />
+                                        <button class="btn btn-sm btn-outline-danger" title="Xóa" onclick="return confirm('Xóa sản phẩm khỏi giỏ?')"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div></div>
+                <a asp-controller="SanPham" asp-action="Index" class="btn btn-outline-primary mt-3"><i class="fas fa-arrow-left"></i> Tiếp tục mua sắm</a>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card"><div class="card-header bg-primary text-white"><strong>Tóm tắt giỏ hàng</strong></div><div class="card-body">
+                    <div class="d-flex justify-content-between mb-2"><span>Tổng số lượng</span><strong>@Model.TongSoLuong</strong></div>
+                    <div class="d-flex justify-content-between mb-3"><span>Tạm tính</span><strong class="text-danger fs-5">@Model.TongTien.ToString("N0") đ</strong></div>
+                    <div class="text-muted small mb-3">Phí vận chuyển được tính theo hình thức nhận hàng ở bước thanh toán.</div>
+                    @if (Model.CoTheThanhToan)
+                    {
+                        <a asp-controller="ThanhToan" asp-action="Index" class="btn btn-success w-100 btn-lg"><i class="fas fa-credit-card"></i> Thanh toán</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary w-100 btn-lg" disabled><i class="fas fa-ban"></i> Chưa thể thanh toán</button>
+                    }
+                </div></div>
+            </div>
+        </div>
+    }
+</div>

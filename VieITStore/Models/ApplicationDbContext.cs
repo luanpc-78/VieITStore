@@ -46,6 +46,33 @@ namespace VieITStore.Models
                 .IsUnique()
                 .HasFilter("[MaVach] IS NOT NULL");
 
+            modelBuilder.Entity<GioHang>()
+                .HasIndex(x => new { x.NguoiDungId, x.SanPhamId })
+                .IsUnique()
+                .HasFilter("[NguoiDungId] IS NOT NULL");
+
+            modelBuilder.Entity<GioHang>()
+                .HasIndex(x => new { x.SessionId, x.SanPhamId })
+                .IsUnique()
+                .HasFilter("[SessionId] IS NOT NULL");
+
+            modelBuilder.Entity<GioHang>()
+                .ToTable(t => t.HasCheckConstraint(
+                    "CK_GioHangs_Owner",
+                    "([NguoiDungId] IS NOT NULL AND [SessionId] IS NULL) OR ([NguoiDungId] IS NULL AND [SessionId] IS NOT NULL)"));
+
+            modelBuilder.Entity<GioHang>()
+                .HasOne(x => x.NguoiDung)
+                .WithMany()
+                .HasForeignKey(x => x.NguoiDungId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<GioHang>()
+                .HasOne(x => x.SanPham)
+                .WithMany()
+                .HasForeignKey(x => x.SanPhamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<SerialSanPham>()
                 .HasOne(x => x.SanPham)
                 .WithMany(x => x.SerialSanPhams)

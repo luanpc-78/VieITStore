@@ -108,14 +108,15 @@
 </div>
 
 @section Scripts {
+    <div id="cartAntiForgery" class="d-none">@Html.AntiForgeryToken()</div>
     <script>
         function addToCart(sanPhamId) {
-            $.post('@Url.Action("ThemVaoGio", "GioHang")', { sanPhamId: sanPhamId, soLuong: 1 }, function (data) {
+            $.post('@Url.Action("ThemVaoGio", "GioHang")', { sanPhamId: sanPhamId, soLuong: 1, __RequestVerificationToken: $('#cartAntiForgery input').val() }, function (data) {
                 if (data.success) {
                     updateCartCount();
                     alert(data.message);
                 }
-            });
+            }).fail(function (xhr) { alert(xhr.responseJSON?.message || 'Không thể thêm sản phẩm vào giỏ.'); });
         }
     </script>
 }

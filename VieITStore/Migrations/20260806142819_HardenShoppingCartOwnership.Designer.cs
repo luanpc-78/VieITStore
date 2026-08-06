@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VieITStore.Models;
 
@@ -11,9 +12,11 @@ using VieITStore.Models;
 namespace VieITStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260806142819_HardenShoppingCartOwnership")]
+    partial class HardenShoppingCartOwnership
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -568,7 +571,7 @@ namespace VieITStore.Migrations
                             Email = "admin@vieitstore.com",
                             HoTen = "Quản trị viên",
                             MatKhauHash = "admin123",
-                            NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 742, DateTimeKind.Local).AddTicks(1862),
+                            NgayTao = new DateTime(2026, 8, 6, 21, 28, 16, 410, DateTimeKind.Local).AddTicks(2339),
                             TenDangNhap = "admin",
                             TrangThai = true,
                             VaiTro = 1
@@ -579,7 +582,7 @@ namespace VieITStore.Migrations
                             Email = "nhanvien@vieitstore.com",
                             HoTen = "Nhân viên bán hàng",
                             MatKhauHash = "nhanvien123",
-                            NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 742, DateTimeKind.Local).AddTicks(2507),
+                            NgayTao = new DateTime(2026, 8, 6, 21, 28, 16, 410, DateTimeKind.Local).AddTicks(2980),
                             TenDangNhap = "nhanvien",
                             TrangThai = true,
                             VaiTro = 2
@@ -590,7 +593,7 @@ namespace VieITStore.Migrations
                             Email = "khachhang@vieitstore.com",
                             HoTen = "Nguyễn Văn A",
                             MatKhauHash = "khachhang123",
-                            NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 742, DateTimeKind.Local).AddTicks(2510),
+                            NgayTao = new DateTime(2026, 8, 6, 21, 28, 16, 410, DateTimeKind.Local).AddTicks(2982),
                             TenDangNhap = "khachhang",
                             TrangThai = true,
                             VaiTro = 3
@@ -841,8 +844,8 @@ namespace VieITStore.Migrations
                             HinhAnh = "/images/cpu-i5.jpg",
                             MaSanPham = "CPU001",
                             MoTaNgan = "Bộ xử lý Intel Core i5 generasi 12",
-                            NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 743, DateTimeKind.Local).AddTicks(5983),
-                            NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 743, DateTimeKind.Local).AddTicks(5978),
+                            NgayCapNhat = new DateTime(2026, 8, 6, 21, 28, 16, 411, DateTimeKind.Local).AddTicks(5060),
+                            NgayTao = new DateTime(2026, 8, 6, 21, 28, 16, 411, DateTimeKind.Local).AddTicks(5056),
                             NoiBat = false,
                             SoLuongDaBan = 10,
                             SoLuongTon = 50,
@@ -861,8 +864,8 @@ namespace VieITStore.Migrations
                             HinhAnh = "/images/gpu-rtx3060.jpg",
                             MaSanPham = "GPU001",
                             MoTaNgan = "Card đồ họa NVIDIA RTX 3060 12GB GDDR6",
-                            NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3899),
-                            NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3896),
+                            NgayCapNhat = new DateTime(2026, 8, 6, 21, 28, 16, 412, DateTimeKind.Local).AddTicks(6138),
+                            NgayTao = new DateTime(2026, 8, 6, 21, 28, 16, 412, DateTimeKind.Local).AddTicks(6126),
                             NoiBat = false,
                             SoLuongDaBan = 5,
                             SoLuongTon = 30,
@@ -881,8 +884,8 @@ namespace VieITStore.Migrations
                             HinhAnh = "/images/ssd-samsung.jpg",
                             MaSanPham = "SSD001",
                             MoTaNgan = "Ổ cứng NVMe tốc độ cao 500GB",
-                            NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3908),
-                            NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3908),
+                            NgayCapNhat = new DateTime(2026, 8, 6, 21, 28, 16, 412, DateTimeKind.Local).AddTicks(6167),
+                            NgayTao = new DateTime(2026, 8, 6, 21, 28, 16, 412, DateTimeKind.Local).AddTicks(6166),
                             NoiBat = false,
                             SoLuongDaBan = 25,
                             SoLuongTon = 100,
@@ -901,8 +904,8 @@ namespace VieITStore.Migrations
                             HinhAnh = "/images/cable-typec.jpg",
                             MaSanPham = "ACC001",
                             MoTaNgan = "Cáp sạc nhanh Type-C to Lightning chất lượng cao",
-                            NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3913),
-                            NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3913),
+                            NgayCapNhat = new DateTime(2026, 8, 6, 21, 28, 16, 412, DateTimeKind.Local).AddTicks(6174),
+                            NgayTao = new DateTime(2026, 8, 6, 21, 28, 16, 412, DateTimeKind.Local).AddTicks(6173),
                             NoiBat = false,
                             SoLuongDaBan = 60,
                             SoLuongTon = 200,
@@ -920,8 +923,8 @@ namespace VieITStore.Migrations
                             HinhAnh = "/images/mouse-logitech.jpg",
                             MaSanPham = "ACC002",
                             MoTaNgan = "Chuột gaming Logitech G502 HERO chuyên nghiệp",
-                            NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3919),
-                            NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3918),
+                            NgayCapNhat = new DateTime(2026, 8, 6, 21, 28, 16, 412, DateTimeKind.Local).AddTicks(6182),
+                            NgayTao = new DateTime(2026, 8, 6, 21, 28, 16, 412, DateTimeKind.Local).AddTicks(6181),
                             NoiBat = false,
                             SoLuongDaBan = 15,
                             SoLuongTon = 45,
