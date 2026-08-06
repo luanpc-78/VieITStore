@@ -1,0 +1,54 @@
+@model DonHang
+@{
+    ViewData["Title"] = "Lập hóa đơn";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-file-invoice"></i> Lập hóa đơn từ đơn hàng @Model.MaDonHang</h5>
+        </div>
+        <div class="card-body">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Khách hàng:</strong> @Model.HoTenNguoiNhan</p>
+                    <p><strong>Số điện thoại:</strong> @Model.SoDienThoaiNguoiNhan</p>
+                    <p><strong>Địa chỉ:</strong> @Model.DiaChiGiaoHang</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Ngày đặt:</strong> @Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Thanh toán:</strong> @(Model.DaThanhToan ? "Đã thanh toán" : "Chưa thanh toán")</p>
+                    <p><strong>Tổng thanh toán:</strong> @Model.TongThanhToan.ToString("N0") đ</p>
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead><tr><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th class="text-center">Số lượng</th><th class="text-end">Thành tiền</th></tr></thead>
+                <tbody>
+                @foreach (var item in Model.ChiTietDonHangs)
+                {
+                    <tr>
+                        <td>@item.SanPham?.TenSanPham</td>
+                        <td class="text-end">@item.DonGia.ToString("N0") đ</td>
+                        <td class="text-center">@item.SoLuong</td>
+                        <td class="text-end">@item.ThanhTien.ToString("N0") đ</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+            <form asp-action="CreateConfirmed" method="post" class="text-end">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="donHangId" value="@Model.Id" />
+                <a asp-area="Admin" asp-controller="DonHangAdmin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                <button type="submit" class="btn btn-success" @(Model.DaThanhToan ? null : "disabled")>
+                    <i class="fas fa-file-invoice"></i> Xác nhận lập hóa đơn
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

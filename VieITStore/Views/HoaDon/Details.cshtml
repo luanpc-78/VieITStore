@@ -1,0 +1,83 @@
+@model HoaDon
+@{
+    ViewData["Title"] = $"Hóa đơn {Model.SoHoaDon}";
+    var order = Model.DonHang!;
+}
+
+@section Styles {
+<style>
+    .invoice-sheet { max-width: 960px; margin: 0 auto; background: #fff; }
+    @@media print {
+        @@page { size: A4; margin: 12mm; }
+        nav, footer, .no-print, .toast-container { display: none !important; }
+        body, main { background: #fff !important; min-height: auto !important; }
+        .invoice-sheet { max-width: none; padding: 0 !important; box-shadow: none !important; }
+        .table { font-size: 12px; }
+    }
+</style>
+}
+
+<div class="container py-4 no-print">
+    @if (TempData["Info"] != null) { <div class="alert alert-info">@TempData["Info"]</div> }
+</div>
+<article class="invoice-sheet shadow-sm p-4 p-md-5 my-md-4">
+    <header class="row border-bottom pb-3 mb-4">
+        <div class="col-7">
+            <h3 class="mb-2"><i class="fas fa-microchip no-print"></i> VieITStore</h3>
+            <div>Cửa hàng linh kiện điện tử và phụ kiện công nghệ</div>
+            <div>123 Nguyễn Văn A, Quận 1, TP.HCM</div>
+            <div>Điện thoại: 1900 1234</div>
+        </div>
+        <div class="col-5 text-end">
+            <h2>HÓA ĐƠN BÁN HÀNG</h2>
+            <div><strong>Số:</strong> @Model.SoHoaDon</div>
+            <div><strong>Ngày lập:</strong> @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")</div>
+            <div><strong>Mã đơn:</strong> @order.MaDonHang</div>
+        </div>
+    </header>
+
+    <section class="row mb-4">
+        <div class="col-7">
+            <h6>THÔNG TIN KHÁCH HÀNG / NGƯỜI NHẬN</h6>
+            <div><strong>Họ tên:</strong> @order.HoTenNguoiNhan</div>
+            <div><strong>Điện thoại:</strong> @order.SoDienThoaiNguoiNhan</div>
+            <div><strong>Địa chỉ:</strong> @order.DiaChiGiaoHang</div>
+            @if (!string.IsNullOrWhiteSpace(Model.KhachHang?.NguoiDung?.Email)) { <div><strong>Email:</strong> @Model.KhachHang.NguoiDung.Email</div> }
+        </div>
+        <div class="col-5">
+            <h6>THANH TOÁN</h6>
+            <div><strong>Phương thức:</strong> @Model.PhuongThucThanhToan</div>
+            <div><strong>Trạng thái:</strong> @(order.DaThanhToan ? "Đã thanh toán" : "Chưa thanh toán")</div>
+            @if (order.NgayThanhToan.HasValue) { <div><strong>Ngày thanh toán:</strong> @order.NgayThanhToan.Value.ToString("dd/MM/yyyy HH:mm")</div> }
+        </div>
+    </section>
+
+    <table class="table table-bordered align-middle">
+        <thead class="table-light"><tr><th style="width:45px">STT</th><th>Mã SP</th><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th class="text-center">SL</th><th class="text-end">Thành tiền</th></tr></thead>
+        <tbody>
+        @{ var number = 1; }
+        @foreach (var item in Model.ChiTietHoaDons)
+        {
+            <tr><td>@number</td><td>@item.SanPham?.MaSanPham</td><td>@item.SanPham?.TenSanPham</td><td class="text-end">@item.DonGia.ToString("N0") đ</td><td class="text-center">@item.SoLuong</td><td class="text-end">@item.ThanhTien.ToString("N0") đ</td></tr>
+            number++;
+        }
+        </tbody>
+        <tfoot>
+            <tr><td colspan="5" class="text-end">Tổng tiền hàng</td><td class="text-end">@Model.TongTienHang.ToString("N0") đ</td></tr>
+            <tr><td colspan="5" class="text-end">Giảm giá</td><td class="text-end">-@Model.GiamGia.ToString("N0") đ</td></tr>
+            <tr><td colspan="5" class="text-end">Phí vận chuyển</td><td class="text-end">@order.PhiVanChuyen.ToString("N0") đ</td></tr>
+            <tr class="table-primary"><td colspan="5" class="text-end fw-bold">TỔNG THANH TOÁN</td><td class="text-end fw-bold">@Model.ThanhTien.ToString("N0") đ</td></tr>
+        </tfoot>
+    </table>
+
+    <div class="row text-center mt-5">
+        <div class="col-6"><strong>Khách hàng</strong><br /><small>(Ký, ghi rõ họ tên)</small></div>
+        <div class="col-6"><strong>Người lập hóa đơn</strong><br /><small>(Ký, ghi rõ họ tên)</small><div class="mt-5">@Model.NguoiLap</div></div>
+    </div>
+    <p class="text-center text-muted mt-5 mb-0"><small>Cảm ơn quý khách đã mua hàng tại VieITStore!</small></p>
+</article>
+
+<div class="text-center mb-4 no-print">
+    <button type="button" onclick="window.print()" class="btn btn-primary"><i class="fas fa-print"></i> In hóa đơn</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Danh sách hóa đơn</a>
+</div>
