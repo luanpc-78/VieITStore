@@ -1,0 +1,40 @@
+@model VieITStore.Models.ViewModels.NhaCungCapVM
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="MaNCC" class="form-label"></label>
+        <input asp-for="MaNCC" class="form-control text-uppercase" autocomplete="off" />
+        <span asp-validation-for="MaNCC" class="text-danger"></span>
+    </div>
+    <div class="col-md-8">
+        <label asp-for="TenNCC" class="form-label"></label>
+        <input asp-for="TenNCC" class="form-control" />
+        <span asp-validation-for="TenNCC" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="NguoiLienHe" class="form-label"></label>
+        <input asp-for="NguoiLienHe" class="form-control" />
+        <span asp-validation-for="NguoiLienHe" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="SoDienThoai" class="form-label"></label>
+        <input asp-for="SoDienThoai" class="form-control" inputmode="tel" />
+        <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" type="email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="MaSoThue" class="form-label"></label>
+        <input asp-for="MaSoThue" class="form-control" />
+        <span asp-validation-for="MaSoThue" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="DiaChi" class="form-label"></label>
+        <textarea asp-for="DiaChi" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="DiaChi" class="text-danger"></span>
+    </div>
+</div>

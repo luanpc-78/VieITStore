@@ -28,6 +28,10 @@ namespace VieITStore.Models
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<NhaCungCap>()
+                .HasIndex(x => x.MaNCC)
+                .IsUnique();
+
             modelBuilder.Entity<PhieuDieuChinhTonKho>()
                 .HasIndex(x => x.MaPhieu)
                 .IsUnique();

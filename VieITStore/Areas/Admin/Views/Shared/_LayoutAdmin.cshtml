@@ -48,6 +48,8 @@
                 <i class="fas fa-list"></i> Danh mục</a></li>
             <li><a href="@Url.Action("Index", "NhapHang", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "NhapHang" ? "active" : "")">
                 <i class="fas fa-truck-loading"></i> Nhập hàng</a></li>
+            <li><a href="@Url.Action("Index", "NhaCungCap", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "NhaCungCap" ? "active" : "")">
+                <i class="fas fa-building"></i> Nhà cung cấp</a></li>
             <li><a href="@Url.Action("Index", "XuatKho", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "XuatKho" ? "active" : "")">
                 <i class="fas fa-dolly"></i> Xuất/điều chỉnh kho</a></li>
             <li><a href="#"><i class="fas fa-users"></i> Khách hàng</a></li>

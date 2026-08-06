@@ -54,6 +54,7 @@ namespace VieITStore.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PhieuNhap phieuNhap, List<ChiTietPhieuNhap> chiTiets)
         {
             try
@@ -61,22 +62,31 @@ namespace VieITStore.Areas.Admin.Controllers
                 var nguoiNhapId = HttpContext.Session.GetInt32("UserId");
                 if (nguoiNhapId == null) return RedirectToAction("DangNhap", "TaiKhoan", new { area = "" });
 
+                if (!await _context.NhaCungCaps.AnyAsync(x => x.Id == phieuNhap.NhaCungCapId && x.TrangThai))
+                    ModelState.AddModelError(nameof(phieuNhap.NhaCungCapId), "Nhà cung cấp không tồn tại hoặc đã ngừng hợp tác.");
+
                 if (chiTiets == null || chiTiets.Count == 0)
                 {
                     ModelState.AddModelError("", "Vui lòng thêm ít nhất một sản phẩm");
+                }
+
+                if (!ModelState.IsValid)
+                {
                     ViewBag.NhaCungCaps = await _context.NhaCungCaps.Where(n => n.TrangThai).ToListAsync();
                     ViewBag.SanPhams = await _context.SanPhams.Where(s => s.TrangThai).ToListAsync();
-                    return View();
+                    return View(phieuNhap);
                 }
+
+                var chiTietHopLe = chiTiets!;
 
                 phieuNhap.MaPhieuNhap = $"PN{DateTime.Now:yyyyMMdd}{new Random().Next(1000, 9999)}";
                 phieuNhap.NguoiNhapId = nguoiNhapId.Value;
-                phieuNhap.TongTien = chiTiets.Sum(ct => ct.DonGiaNhap * ct.SoLuong);
+                phieuNhap.TongTien = chiTietHopLe.Sum(ct => ct.DonGiaNhap * ct.SoLuong);
                 phieuNhap.NgayNhap = DateTime.Now;
 
                 _context.PhieuNhaps.Add(phieuNhap);
 
-                foreach (var ct in chiTiets)
+                foreach (var ct in chiTietHopLe)
                 {
                     ct.PhieuNhapId = phieuNhap.Id;
                     _context.ChiTietPhieuNhaps.Add(ct);

@@ -1,0 +1,21 @@
+@model VieITStore.Models.Entities.NhaCungCap
+@{
+    ViewData["Title"] = "Chi tiết nhà cung cấp";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div><h4 class="mb-1">@Model.TenNCC</h4><span class="badge @(Model.TrangThai ? "bg-success" : "bg-secondary")">@(Model.TrangThai ? "Đang hợp tác" : "Ngừng hợp tác")</span></div>
+    <div><a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Cập nhật</a> <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a></div>
+</div>
+
+<div class="card"><div class="card-body">
+    <div class="row g-4">
+        <div class="col-md-6"><div class="text-muted">Mã nhà cung cấp</div><strong>@Model.MaNCC</strong></div>
+        <div class="col-md-6"><div class="text-muted">Người liên hệ</div><strong>@(Model.NguoiLienHe ?? "Chưa cập nhật")</strong></div>
+        <div class="col-md-6"><div class="text-muted">Số điện thoại</div><strong>@(Model.SoDienThoai ?? "Chưa cập nhật")</strong></div>
+        <div class="col-md-6"><div class="text-muted">Email</div><strong>@(Model.Email ?? "Chưa cập nhật")</strong></div>
+        <div class="col-md-6"><div class="text-muted">Mã số thuế</div><strong>@(Model.MaSoThue ?? "Chưa cập nhật")</strong></div>
+        <div class="col-md-6"><div class="text-muted">Số phiếu nhập đã lưu</div><strong>@ViewBag.SoPhieuNhap</strong></div>
+        <div class="col-12"><div class="text-muted">Địa chỉ</div><strong>@(Model.DiaChi ?? "Chưa cập nhật")</strong></div>
+    </div>
+</div></div>
