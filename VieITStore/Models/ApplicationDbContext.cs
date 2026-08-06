@@ -23,6 +23,7 @@ namespace VieITStore.Models
         public DbSet<DanhGia> DanhGias { get; set; }
         public DbSet<PhieuDieuChinhTonKho> PhieuDieuChinhTonKhos { get; set; }
         public DbSet<ChiTietDieuChinhTonKho> ChiTietDieuChinhTonKhos { get; set; }
+        public DbSet<SerialSanPham> SerialSanPhams { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +32,28 @@ namespace VieITStore.Models
             modelBuilder.Entity<NhaCungCap>()
                 .HasIndex(x => x.MaNCC)
                 .IsUnique();
+
+            modelBuilder.Entity<SerialSanPham>()
+                .HasIndex(x => x.MaSerial)
+                .IsUnique();
+
+            modelBuilder.Entity<SerialSanPham>()
+                .HasOne(x => x.SanPham)
+                .WithMany(x => x.SerialSanPhams)
+                .HasForeignKey(x => x.SanPhamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SerialSanPham>()
+                .HasOne(x => x.ChiTietPhieuNhap)
+                .WithMany(x => x.SerialSanPhams)
+                .HasForeignKey(x => x.ChiTietPhieuNhapId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SerialSanPham>()
+                .HasOne(x => x.ChiTietDonHang)
+                .WithMany(x => x.SerialSanPhams)
+                .HasForeignKey(x => x.ChiTietDonHangId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PhieuDieuChinhTonKho>()
                 .HasIndex(x => x.MaPhieu)

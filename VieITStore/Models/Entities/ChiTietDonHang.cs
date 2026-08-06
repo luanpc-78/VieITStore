@@ -15,6 +15,8 @@ namespace VieITStore.Models.Entities
 
         public int SoLuong { get; set; }
 
+        public virtual ICollection<SerialSanPham> SerialSanPhams { get; set; } = new List<SerialSanPham>();
+
         [NotMapped]
         public decimal ThanhTien => DonGia * SoLuong;
     }

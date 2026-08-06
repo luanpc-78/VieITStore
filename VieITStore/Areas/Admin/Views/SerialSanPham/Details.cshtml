@@ -1,0 +1,54 @@
+@model SerialSanPham
+@{
+    ViewData["Title"] = "Chi tiết serial/IMEI";
+    var statusText = Model.TrangThai switch
+    {
+        TrangThaiSerial.TrongKho => "Trong kho",
+        TrangThaiSerial.DaBan => "Đã bán",
+        TrangThaiSerial.DangBaoHanh => "Đang bảo hành",
+        _ => "Ngừng theo dõi"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div><h4 class="mb-1">@Model.MaSerial</h4><span class="badge bg-primary">@statusText</span></div>
+    <div><a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Cập nhật</a> <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6"><div class="card h-100"><div class="card-header"><strong>Sản phẩm và bảo hành</strong></div><div class="card-body">
+        <p><strong>Sản phẩm:</strong> @Model.SanPham?.TenSanPham (@Model.SanPham?.MaSanPham)</p>
+        <p><strong>Thời hạn cấu hình:</strong> @Model.SanPham?.BaoHanh tháng</p>
+        <p><strong>Bắt đầu bảo hành:</strong> @(Model.NgayBatDauBaoHanh?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa bắt đầu")</p>
+        <p><strong>Hết hạn:</strong> @(Model.NgayHetHanBaoHanh?.ToString("dd/MM/yyyy") ?? "Chưa xác định")</p>
+        <p class="mb-0"><strong>Ghi chú:</strong> @(Model.GhiChu ?? "Không có")</p>
+    </div></div></div>
+    <div class="col-lg-6"><div class="card h-100"><div class="card-header"><strong>Nguồn nhập</strong></div><div class="card-body">
+        @if (Model.ChiTietPhieuNhap?.PhieuNhap == null)
+        {
+            <div class="text-muted">Chưa liên kết phiếu nhập.</div>
+        }
+        else
+        {
+            <p><strong>Phiếu nhập:</strong> @Model.ChiTietPhieuNhap.PhieuNhap.MaPhieuNhap</p>
+            <p><strong>Ngày nhập:</strong> @Model.ChiTietPhieuNhap.PhieuNhap.NgayNhap.ToString("dd/MM/yyyy HH:mm")</p>
+            <p><strong>Nhà cung cấp:</strong> @Model.ChiTietPhieuNhap.PhieuNhap.NhaCungCap?.TenNCC</p>
+            <p class="mb-0"><strong>Đơn giá nhập:</strong> @Model.ChiTietPhieuNhap.DonGiaNhap.ToString("N0") đ</p>
+        }
+    </div></div></div>
+    <div class="col-12"><div class="card"><div class="card-header"><strong>Lịch sử bán</strong></div><div class="card-body">
+        @if (Model.ChiTietDonHang?.DonHang == null)
+        {
+            <div class="text-muted">Serial chưa được bán.</div>
+        }
+        else
+        {
+            <div class="row g-3">
+                <div class="col-md-3"><div class="text-muted">Mã đơn</div><strong>@Model.ChiTietDonHang.DonHang.MaDonHang</strong></div>
+                <div class="col-md-3"><div class="text-muted">Ngày đặt</div><strong>@Model.ChiTietDonHang.DonHang.NgayDat.ToString("dd/MM/yyyy HH:mm")</strong></div>
+                <div class="col-md-3"><div class="text-muted">Khách hàng</div><strong>@Model.ChiTietDonHang.DonHang.KhachHang?.NguoiDung?.HoTen</strong></div>
+                <div class="col-md-3"><div class="text-muted">Đơn giá bán</div><strong>@Model.ChiTietDonHang.DonGia.ToString("N0") đ</strong></div>
+            </div>
+        }
+    </div></div></div>
+</div>

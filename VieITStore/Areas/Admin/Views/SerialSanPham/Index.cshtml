@@ -1,0 +1,47 @@
+@model IReadOnlyList<SerialSanPham>
+@{
+    ViewData["Title"] = "Serial và bảo hành";
+    string StatusText(TrangThaiSerial value) => value switch
+    {
+        TrangThaiSerial.TrongKho => "Trong kho",
+        TrangThaiSerial.DaBan => "Đã bán",
+        TrangThaiSerial.DangBaoHanh => "Đang bảo hành",
+        _ => "Ngừng theo dõi"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div><h4 class="mb-1">Quản lý serial/IMEI</h4><div class="text-muted">Theo dõi nguồn nhập, lần bán và thời hạn bảo hành.</div></div>
+    <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Thêm serial</a>
+</div>
+
+<div class="card mb-3"><div class="card-body">
+    <form method="get" class="row g-2">
+        <div class="col-md-7"><input name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm serial, mã hoặc tên sản phẩm" /></div>
+        <div class="col-md-3"><select name="trangThai" asp-items="Html.GetEnumSelectList<TrangThaiSerial>()" class="form-select"><option value="">Tất cả trạng thái</option></select></div>
+        <div class="col-md-2 d-grid"><button class="btn btn-outline-primary"><i class="fas fa-search"></i> Tìm kiếm</button></div>
+    </form>
+</div></div>
+
+<div class="card"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Serial/IMEI</th><th>Sản phẩm</th><th>Trạng thái</th><th>Bảo hành đến</th><th class="text-end">Thao tác</th></tr></thead>
+    <tbody>
+    @if (Model.Count == 0)
+    {
+        <tr><td colspan="5" class="text-center text-muted py-4">Không tìm thấy serial/IMEI.</td></tr>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="fw-semibold">@item.MaSerial</td>
+                <td><div>@item.SanPham?.TenSanPham</div><small class="text-muted">@item.SanPham?.MaSanPham</small></td>
+                <td><span class="badge @(item.TrangThai == TrangThaiSerial.TrongKho ? "bg-success" : item.TrangThai == TrangThaiSerial.DaBan ? "bg-primary" : item.TrangThai == TrangThaiSerial.DangBaoHanh ? "bg-warning text-dark" : "bg-secondary")">@StatusText(item.TrangThai)</span></td>
+                <td>@(item.NgayHetHanBaoHanh?.ToString("dd/MM/yyyy") ?? "—")</td>
+                <td class="text-end"><a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></a> <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a></td>
+            </tr>
+        }
+    }
+    </tbody>
+</table></div></div>

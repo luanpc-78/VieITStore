@@ -47,5 +47,6 @@ namespace VieITStore.Models.Entities
         public virtual ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
         public virtual ICollection<DanhGia> DanhGias { get; set; } = new List<DanhGia>();
         public virtual ICollection<ChiTietPhieuNhap> ChiTietPhieuNhaps { get; set; } = new List<ChiTietPhieuNhap>();
+        public virtual ICollection<SerialSanPham> SerialSanPhams { get; set; } = new List<SerialSanPham>();
     }
 }
