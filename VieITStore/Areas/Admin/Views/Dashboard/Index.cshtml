@@ -1,0 +1,146 @@
+﻿@{
+    ViewData["Title"] = "Tổng quan";
+    var donHangs = ViewBag.DonHangMoi as List<VieITStore.Models.Entities.DonHang>;
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card d-flex align-items-center">
+            <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <div>
+                <h6 class="text-muted mb-1">Đơn hàng hôm nay</h6>
+                <h4 class="mb-0">@Model.TongDonHangHomNay</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card d-flex align-items-center">
+            <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div>
+                <h6 class="text-muted mb-1">Doanh thu hôm nay</h6>
+                <h4 class="mb-0">@Model.DoanhThuHomNay.ToString("N0") đ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card d-flex align-items-center">
+            <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <h6 class="text-muted mb-1">Doanh thu tháng</h6>
+                <h4 class="mb-0">@Model.DoanhThuThang.ToString("N0") đ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card d-flex align-items-center">
+            <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <h6 class="text-muted mb-1">Chờ xác nhận</h6>
+                <h4 class="mb-0">@Model.DonHangChoXacNhan</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card d-flex align-items-center">
+            <div class="stat-icon bg-secondary bg-opacity-10 text-secondary me-3">
+                <i class="fas fa-box"></i>
+            </div>
+            <div>
+                <h6 class="text-muted mb-1">Tổng sản phẩm</h6>
+                <h4 class="mb-0">@Model.TongSanPham</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card d-flex align-items-center">
+            <div class="stat-icon bg-danger bg-opacity-10 text-danger me-3">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <h6 class="text-muted mb-1">Sắp hết hàng</h6>
+                <h4 class="mb-0">@Model.SanPhamSapHet</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card d-flex align-items-center">
+            <div class="stat-icon bg-dark bg-opacity-10 text-dark me-3">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <h6 class="text-muted mb-1">Tổng khách hàng</h6>
+                <h4 class="mb-0">@Model.TongKhachHang</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-list"></i> Đơn hàng mới nhất</h5>
+        <a href="@Url.Action("Index", "DonHangAdmin")" class="btn btn-sm btn-primary">Xem tất cả</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thanh toán</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var dh in donHangs ?? new List<VieITStore.Models.Entities.DonHang>())
+                {
+                    var badgeClass = dh.TrangThai switch
+                    {
+                        VieITStore.Models.Entities.TrangThaiDonHang.ChoXacNhan => "bg-warning text-dark",
+                        VieITStore.Models.Entities.TrangThaiDonHang.DaXacNhan => "bg-info",
+                        VieITStore.Models.Entities.TrangThaiDonHang.DangGiao => "bg-primary",
+                        VieITStore.Models.Entities.TrangThaiDonHang.DaGiao => "bg-success",
+                        VieITStore.Models.Entities.TrangThaiDonHang.HoanThanh => "bg-success",
+                        VieITStore.Models.Entities.TrangThaiDonHang.DaHuy => "bg-danger",
+                        _ => "bg-secondary"
+                    };
+                    <tr>
+                        <td><strong>@dh.MaDonHang</strong></td>
+                        <td>@dh.KhachHang?.NguoiDung?.HoTen</td>
+                        <td>@dh.NgayDat.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="fw-bold text-primary">@dh.TongThanhToan.ToString("N0") đ</td>
+                        <td><span class="badge @badgeClass">@dh.TrangThai</span></td>
+                        <td>
+                            @if (dh.DaThanhToan)
+                            {
+                                <span class="badge bg-success"><i class="fas fa-check"></i> Đã TT</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Chưa TT</span>
+                            }
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
