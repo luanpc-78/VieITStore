@@ -23,6 +23,12 @@ namespace VieITStore.Models.Entities
         TienMat = 5
     }
 
+    public enum HinhThucNhanHang
+    {
+        GiaoTanNoi = 1,
+        NhanTaiCuaHang = 2
+    }
+
     public class DonHang
     {
         [Key]
@@ -34,6 +40,8 @@ namespace VieITStore.Models.Entities
 
         [Required, MaxLength(30)]
         public string KenhBan { get; set; } = "Trực tuyến";
+
+        public HinhThucNhanHang HinhThucNhanHang { get; set; } = HinhThucNhanHang.GiaoTanNoi;
 
         [Required]
         public int KhachHangId { get; set; }

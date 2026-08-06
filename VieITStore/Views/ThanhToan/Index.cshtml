@@ -1,152 +1,100 @@
-﻿@model VieITStore.Models.ViewModels.ThanhToanVM
+@model ThanhToanVM
 @{
     ViewData["Title"] = "Thanh toán";
 }
 
 <div class="container py-4">
-    <h3><i class="fas fa-credit-card"></i> Thanh toán</h3>
-
+    <h3 class="mb-4"><i class="fas fa-credit-card"></i> Thanh toán</h3>
     <form asp-action="DatHang" method="post">
-        <div class="row">
-            <div class="col-md-7">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div class="row g-4">
+            <div class="col-lg-7">
                 <div class="card mb-3">
-                    <div class="card-header bg-primary text-white">
-                        <i class="fas fa-truck"></i> Thông tin giao hàng
-                    </div>
+                    <div class="card-header bg-primary text-white"><i class="fas fa-box"></i> Hình thức nhận hàng</div>
                     <div class="card-body">
-                        @if (Model.DiaChiGiaoHangs.Any())
-                        {
-                            <div class="mb-3">
-                                <label class="form-label">Chọn địa chỉ đã lưu</label>
-                                <select class="form-select" id="diaChiSelect" onchange="chonDiaChi(this)">
-                                    <option value="">-- Địa chỉ mới --</option>
-                                    @foreach (var dc in Model.DiaChiGiaoHangs)
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="border rounded p-3 d-block h-100" for="deliveryMethod">
+                                    <input id="deliveryMethod" asp-for="HinhThucNhanHang" type="radio" value="GiaoTanNoi" class="form-check-input me-2" />
+                                    <strong><i class="fas fa-truck"></i> Giao hàng tận nơi</strong>
+                                    <small class="d-block text-muted mt-2">Phí vận chuyển 30.000đ, giao đến địa chỉ của bạn.</small>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="border rounded p-3 d-block h-100" for="pickupMethod">
+                                    <input id="pickupMethod" asp-for="HinhThucNhanHang" type="radio" value="NhanTaiCuaHang" class="form-check-input me-2" />
+                                    <strong><i class="fas fa-store"></i> Nhận tại cửa hàng</strong>
+                                    <small class="d-block text-muted mt-2">Miễn phí vận chuyển, khách hàng đến cửa hàng nhận.</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white"><i class="fas fa-user"></i> Thông tin người nhận</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label asp-for="HoTenNguoiNhan" class="form-label">Họ tên</label><input asp-for="HoTenNguoiNhan" class="form-control" required /><span asp-validation-for="HoTenNguoiNhan" class="text-danger"></span></div>
+                            <div class="col-md-6 mb-3"><label asp-for="SoDienThoai" class="form-label">Số điện thoại</label><input asp-for="SoDienThoai" class="form-control" required /><span asp-validation-for="SoDienThoai" class="text-danger"></span></div>
+                        </div>
+
+                        <div id="deliveryAddress">
+                            @if (Model.DiaChiGiaoHangs.Any())
+                            {
+                                <div class="mb-3">
+                                    <label for="diaChiSelect" class="form-label">Chọn địa chỉ đã lưu</label>
+                                    <select class="form-select" id="diaChiSelect" onchange="chonDiaChi(this)"><option value="">-- Địa chỉ mới --</option>
+                                    @foreach (var address in Model.DiaChiGiaoHangs)
                                     {
-                                        <option value="@dc.Id" data-hoten="@dc.HoTenNguoiNhan" data-sdt="@dc.SoDienThoai"
-                                                data-tinh="@dc.TinhThanh" data-quan="@dc.QuanHuyen" data-phuong="@dc.PhuongXa"
-                                                data-diachi="@dc.DiaChiChiTiet">
-                                            @dc.HoTenNguoiNhan - @dc.DiaChiChiTiet, @dc.PhuongXa, @dc.QuanHuyen, @dc.TinhThanh
-                                        </option>
+                                        <option value="@address.Id" data-hoten="@address.HoTenNguoiNhan" data-sdt="@address.SoDienThoai" data-tinh="@address.TinhThanh" data-quan="@address.QuanHuyen" data-phuong="@address.PhuongXa" data-diachi="@address.DiaChiChiTiet">@address.HoTenNguoiNhan - @address.DiaChiChiTiet, @address.PhuongXa, @address.QuanHuyen, @address.TinhThanh</option>
                                     }
-                                </select>
+                                    </select>
+                                </div>
+                            }
+                            <div class="row">
+                                <div class="col-md-4 mb-3"><label asp-for="TinhThanh" class="form-label">Tỉnh/Thành phố</label><select asp-for="TinhThanh" class="form-select address-required"><option value="">Chọn Tỉnh/TP</option><option>Hồ Chí Minh</option><option>Hà Nội</option><option>Đà Nẵng</option><option>Cần Thơ</option><option>Hải Phòng</option></select><span asp-validation-for="TinhThanh" class="text-danger"></span></div>
+                                <div class="col-md-4 mb-3"><label asp-for="QuanHuyen" class="form-label">Quận/Huyện</label><input asp-for="QuanHuyen" class="form-control address-required" /><span asp-validation-for="QuanHuyen" class="text-danger"></span></div>
+                                <div class="col-md-4 mb-3"><label asp-for="PhuongXa" class="form-label">Phường/Xã</label><input asp-for="PhuongXa" class="form-control address-required" /><span asp-validation-for="PhuongXa" class="text-danger"></span></div>
                             </div>
-                        }
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="HoTenNguoiNhan" class="form-label"></label>
-                                <input asp-for="HoTenNguoiNhan" class="form-control" required>
-                                <span asp-validation-for="HoTenNguoiNhan" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="SoDienThoai" class="form-label"></label>
-                                <input asp-for="SoDienThoai" class="form-control" required>
-                                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
-                            </div>
+                            <div class="mb-3"><label asp-for="DiaChiChiTiet" class="form-label">Địa chỉ chi tiết</label><input asp-for="DiaChiChiTiet" class="form-control address-required" placeholder="Số nhà, tên đường..." /><span asp-validation-for="DiaChiChiTiet" class="text-danger"></span></div>
+                            <div class="form-check"><input asp-for="LuuDiaChi" class="form-check-input" /><label asp-for="LuuDiaChi" class="form-check-label">Lưu địa chỉ này cho lần sau</label></div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="TinhThanh" class="form-label"></label>
-                                <select asp-for="TinhThanh" class="form-select" required>
-                                    <option value="">Chọn Tỉnh/TP</option>
-                                    <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-                                    <option value="Hà Nội">Hà Nội</option>
-                                    <option value="Đà Nẵng">Đà Nẵng</option>
-                                    <option value="Cần Thơ">Cần Thơ</option>
-                                    <option value="Hải Phòng">Hải Phòng</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="QuanHuyen" class="form-label"></label>
-                                <input asp-for="QuanHuyen" class="form-control" placeholder="Quận/Huyện" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="PhuongXa" class="form-label"></label>
-                                <input asp-for="PhuongXa" class="form-control" placeholder="Phường/Xã" required>
-                            </div>
+                        <div id="storePickup" class="alert alert-success mb-0 d-none">
+                            <h6><i class="fas fa-store"></i> Nhận tại VieITStore</h6>
+                            <div><strong>Địa chỉ:</strong> 123 Nguyễn Văn A, Quận 1, TP.HCM</div>
+                            <div><strong>Giờ hoạt động:</strong> 08:00–21:00, Thứ Hai–Chủ Nhật</div>
+                            <div class="mt-2">Khách hàng vui lòng đến cửa hàng và cung cấp mã đơn để nhận hàng.</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="DiaChiChiTiet" class="form-label"></label>
-                            <input asp-for="DiaChiChiTiet" class="form-control" placeholder="Số nhà, đường, tòa nhà..." required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="GhiChu" class="form-label"></label>
-                            <textarea asp-for="GhiChu" class="form-control" rows="2" placeholder="Ghi chú cho đơn hàng (không bắt buộc)"></textarea>
-                        </div>
-
-                        <div class="form-check">
-                            <input asp-for="LuuDiaChi" class="form-check-input" type="checkbox">
-                            <label asp-for="LuuDiaChi" class="form-check-label">Lưu địa chỉ này cho lần sau</label>
-                        </div>
+                        <div class="mt-3"><label asp-for="GhiChu" class="form-label">Ghi chú</label><textarea asp-for="GhiChu" class="form-control" rows="2"></textarea></div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <i class="fas fa-wallet"></i> Phương thức thanh toán
-                    </div>
+                    <div class="card-header bg-primary text-white"><i class="fas fa-wallet"></i> Phương thức thanh toán</div>
                     <div class="card-body">
-                        <div class="form-check mb-2 p-3 border rounded">
-                            <input class="form-check-input" type="radio" asp-for="PhuongThucThanhToan" value="COD" id="pttt1" checked>
-                            <label class="form-check-label" for="pttt1">
-                                <i class="fas fa-money-bill-wave text-success"></i> <strong>Thanh toán khi nhận hàng (COD)</strong>
-                                <p class="mb-0 text-muted small">Nhận hàng và thanh toán tiền mặt cho shipper</p>
-                            </label>
-                        </div>
-                        <div class="form-check mb-2 p-3 border rounded">
-                            <input class="form-check-input" type="radio" asp-for="PhuongThucThanhToan" value="ChuyenKhoan" id="pttt2">
-                            <label class="form-check-label" for="pttt2">
-                                <i class="fas fa-university text-primary"></i> <strong>Chuyển khoản ngân hàng</strong>
-                                <p class="mb-0 text-muted small">Chuyển khoản đến tài khoản VieITStore</p>
-                            </label>
-                        </div>
-                        <div class="form-check mb-2 p-3 border rounded">
-                            <input class="form-check-input" type="radio" asp-for="PhuongThucThanhToan" value="ViDienTu" id="pttt3">
-                            <label class="form-check-label" for="pttt3">
-                                <i class="fas fa-mobile-alt text-danger"></i> <strong>Ví điện tử (Momo, ZaloPay, VNPay)</strong>
-                                <p class="mb-0 text-muted small">Thanh toán qua ví điện tử</p>
-                            </label>
-                        </div>
+                        <label class="form-check border rounded p-3 mb-2" for="paymentCod"><input id="paymentCod" asp-for="PhuongThucThanhToan" type="radio" value="COD" class="form-check-input" /><span class="form-check-label ms-2"><strong id="codTitle">Thanh toán khi nhận hàng (COD)</strong><small id="codDescription" class="d-block text-muted">Thanh toán tiền mặt cho nhân viên giao hàng.</small></span></label>
+                        <label class="form-check border rounded p-3 mb-2" for="paymentBank"><input id="paymentBank" asp-for="PhuongThucThanhToan" type="radio" value="ChuyenKhoan" class="form-check-input" /><span class="form-check-label ms-2"><strong>Chuyển khoản ngân hàng</strong></span></label>
+                        <label class="form-check border rounded p-3" for="paymentWallet"><input id="paymentWallet" asp-for="PhuongThucThanhToan" type="radio" value="ViDienTu" class="form-check-input" /><span class="form-check-label ms-2"><strong>Ví điện tử</strong></span></label>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-5">
-                <div class="card sticky-top" style="top: 80px;">
-                    <div class="card-header bg-success text-white">
-                        <i class="fas fa-receipt"></i> Đơn hàng của bạn
-                    </div>
+            <div class="col-lg-5">
+                <div class="card sticky-top" style="top:80px">
+                    <div class="card-header bg-success text-white"><i class="fas fa-receipt"></i> Đơn hàng của bạn</div>
                     <div class="card-body">
                         @foreach (var item in Model.GioHang.Items)
                         {
-                            <div class="d-flex justify-content-between mb-2">
-                                <div>
-                                    <span class="badge bg-secondary">@item.SoLuong x</span>
-                                    <small>@item.TenSanPham</small>
-                                </div>
-                                <small>@item.ThanhTien.ToString("N0") đ</small>
-                            </div>
+                            <div class="d-flex justify-content-between mb-2"><div><span class="badge bg-secondary">@item.SoLuong x</span> <small>@item.TenSanPham</small></div><small>@item.ThanhTien.ToString("N0") đ</small></div>
                         }
-                        <hr>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Tạm tính:</span>
-                            <span>@Model.GioHang.TongTien.ToString("N0") đ</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Phí vận chuyển:</span>
-                            <span>30.000 đ</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="fw-bold fs-5">Tổng thanh toán:</span>
-                            <span class="fw-bold text-danger fs-4">@((Model.GioHang.TongTien + 30000).ToString("N0")) đ</span>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100 btn-lg">
-                            <i class="fas fa-check-circle"></i> Đặt hàng
-                        </button>
+                        <hr /><div class="d-flex justify-content-between mb-2"><span>Tạm tính:</span><span>@Model.GioHang.TongTien.ToString("N0") đ</span></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Phí vận chuyển:</span><span id="shippingFee">30.000 đ</span></div>
+                        <hr /><div class="d-flex justify-content-between mb-3"><span class="fw-bold fs-5">Tổng thanh toán:</span><span id="checkoutTotal" data-subtotal="@Model.GioHang.TongTien" class="fw-bold text-danger fs-4">@((Model.GioHang.TongTien + 30000).ToString("N0")) đ</span></div>
+                        <button type="submit" class="btn btn-success w-100 btn-lg"><i class="fas fa-check-circle"></i> Đặt hàng</button>
+                        <small class="text-muted d-block mt-2">Phí vận chuyển được tính lại tại server.</small>
                     </div>
                 </div>
             </div>
@@ -158,15 +106,28 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         function chonDiaChi(select) {
-            var option = select.options[select.selectedIndex];
-            if (option.value) {
-                document.getElementById('HoTenNguoiNhan').value = option.getAttribute('data-hoten');
-                document.getElementById('SoDienThoai').value = option.getAttribute('data-sdt');
-                document.getElementById('TinhThanh').value = option.getAttribute('data-tinh');
-                document.getElementById('QuanHuyen').value = option.getAttribute('data-quan');
-                document.getElementById('PhuongXa').value = option.getAttribute('data-phuong');
-                document.getElementById('DiaChiChiTiet').value = option.getAttribute('data-diachi');
-            }
+            const option = select.options[select.selectedIndex];
+            if (!option.value) return;
+            document.getElementById('HoTenNguoiNhan').value = option.dataset.hoten;
+            document.getElementById('SoDienThoai').value = option.dataset.sdt;
+            document.getElementById('TinhThanh').value = option.dataset.tinh;
+            document.getElementById('QuanHuyen').value = option.dataset.quan;
+            document.getElementById('PhuongXa').value = option.dataset.phuong;
+            document.getElementById('DiaChiChiTiet').value = option.dataset.diachi;
         }
+
+        function updateReceivingMethod() {
+            const pickup = document.getElementById('pickupMethod').checked;
+            document.getElementById('deliveryAddress').classList.toggle('d-none', pickup);
+            document.getElementById('storePickup').classList.toggle('d-none', !pickup);
+            document.querySelectorAll('.address-required').forEach(input => input.required = !pickup);
+            document.getElementById('shippingFee').textContent = pickup ? '0 đ' : '30.000 đ';
+            const total = document.getElementById('checkoutTotal');
+            total.textContent = (Number(total.dataset.subtotal) + (pickup ? 0 : 30000)).toLocaleString('vi-VN') + ' đ';
+            document.getElementById('codTitle').textContent = pickup ? 'Thanh toán khi nhận tại cửa hàng' : 'Thanh toán khi nhận hàng (COD)';
+            document.getElementById('codDescription').textContent = pickup ? 'Thanh toán tiền mặt khi đến VieITStore nhận hàng.' : 'Thanh toán tiền mặt cho nhân viên giao hàng.';
+        }
+        document.querySelectorAll('[name="HinhThucNhanHang"]').forEach(input => input.addEventListener('change', updateReceivingMethod));
+        updateReceivingMethod();
     </script>
 }

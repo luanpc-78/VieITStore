@@ -95,6 +95,7 @@
             <p><strong>Nhân viên:</strong> @(Model.NhanVienXuLy?.HoTen ?? "Chưa xác định")</p><p class="mb-0"><strong>Ghi chú:</strong> @(Model.GhiChu ?? "Không có")</p>
         </div></div>
         <div class="card"><div class="card-header"><strong>Thanh toán</strong></div><div class="card-body">
+            <p><strong>Hình thức nhận:</strong> @(Model.HinhThucNhanHang == HinhThucNhanHang.NhanTaiCuaHang ? "Nhận tại cửa hàng" : "Giao hàng tận nơi")</p>
             <p><strong>Phương thức:</strong> @paymentText</p><p><strong>Trạng thái:</strong> <span class="badge @(Model.DaThanhToan ? "bg-success" : "bg-secondary")">@(Model.DaThanhToan ? "Đã thanh toán" : "Chưa thanh toán")</span></p><hr /><div class="d-flex justify-content-between fs-5 fw-bold"><span>Tổng cộng</span><span class="text-danger">@Model.TongThanhToan.ToString("N0") đ</span></div>
         </div></div>
     </div>

@@ -26,6 +26,7 @@
                             <p><strong>Mã đơn:</strong> @Model.MaDonHang</p>
                             <p><strong>Ngày đặt:</strong> @Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</p>
                             <p><strong>Ngày giao dự kiến:</strong> @(Model.NgayGiaoDuKien?.ToString("dd/MM/yyyy") ?? "Đang cập nhật")</p>
+                            <p><strong>Hình thức nhận:</strong> @(Model.HinhThucNhanHang == HinhThucNhanHang.NhanTaiCuaHang ? "Nhận tại cửa hàng" : "Giao hàng tận nơi")</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Phương thức TT:</strong> @Model.PhuongThucThanhToan</p>
@@ -100,11 +101,18 @@
 
         <div class="col-md-4">
             <div class="card mb-3">
-                <div class="card-header">Thông tin giao hàng</div>
+                <div class="card-header">Thông tin nhận hàng</div>
                 <div class="card-body">
                     <p><strong>Người nhận:</strong> @Model.HoTenNguoiNhan</p>
                     <p><strong>SĐT:</strong> @Model.SoDienThoaiNguoiNhan</p>
-                    <p><strong>Địa chỉ:</strong> @Model.DiaChiGiaoHang</p>
+                    @if (Model.HinhThucNhanHang == HinhThucNhanHang.NhanTaiCuaHang)
+                    {
+                        <div class="alert alert-success"><strong>Nhận tại VieITStore</strong><br />123 Nguyễn Văn A, Quận 1, TP.HCM<br />08:00–21:00, Thứ Hai–Chủ Nhật</div>
+                    }
+                    else
+                    {
+                        <p><strong>Địa chỉ giao:</strong> @Model.DiaChiGiaoHang</p>
+                    }
                     @if (!string.IsNullOrEmpty(Model.GhiChu))
                     {
                         <p><strong>Ghi chú:</strong> @Model.GhiChu</p>

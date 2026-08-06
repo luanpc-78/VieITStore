@@ -34,6 +34,7 @@
                     <div>
                         <span class="fw-bold">@dh.MaDonHang</span>
                         <span class="text-muted ms-3"><i class="far fa-calendar"></i> @dh.NgayDat.ToString("dd/MM/yyyy HH:mm")</span>
+                        <span class="badge bg-light text-dark border ms-2">@(dh.HinhThucNhanHang == HinhThucNhanHang.NhanTaiCuaHang ? "Nhận tại cửa hàng" : "Giao tận nơi")</span>
                     </div>
                     <span class="badge @badgeClass">@dh.TrangThai</span>
                 </div>
