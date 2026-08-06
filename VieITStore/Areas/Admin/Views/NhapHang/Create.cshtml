@@ -1,0 +1,122 @@
+﻿@{
+    ViewData["Title"] = "Nhập hàng mới";
+    var nhaCungCaps = ViewBag.NhaCungCaps as List<VieITStore.Models.Entities.NhaCungCap>;
+    var sanPhams = ViewBag.SanPhams as List<VieITStore.Models.Entities.SanPham>;
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Phiếu nhập hàng mới</h5>
+    </div>
+    <div class="card-body">
+        <form id="phieuNhapForm" method="post">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nhà cung cấp</label>
+                    <select name="NhaCungCapId" class="form-select" required>
+                        <option value="">-- Chọn nhà cung cấp --</option>
+                        @foreach (var ncc in nhaCungCaps ?? new List<VieITStore.Models.Entities.NhaCungCap>())
+                        {
+                            <option value="@ncc.Id">@ncc.TenNCC - @ncc.NguoiLienHe</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ghi chú</label>
+                    <input name="GhiChu" class="form-control" placeholder="Ghi chú phiếu nhập">
+                </div>
+            </div>
+
+            <h6 class="mb-3">Chi tiết nhập hàng</h6>
+            <table class="table table-bordered" id="chiTietTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th width="150">Đơn giá nhập</th>
+                        <th width="100">Số lượng</th>
+                        <th width="150">Thành tiền</th>
+                        <th width="50"></th>
+                    </tr>
+                </thead>
+                <tbody id="chiTietBody"></tbody>
+            </table>
+
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="themDong()">
+                <i class="fas fa-plus"></i> Thêm sản phẩm
+            </button>
+
+            <div class="row mt-4 justify-content-end">
+                <div class="col-md-4">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="text-end">Tổng tiền:</td>
+                            <td class="text-end fw-bold fs-5 text-danger"><span id="tongTien">0</span> đ</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu phiếu nhập</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let rowIndex = 0;
+    const sanPhams = @Html.Raw(Json.Serialize(sanPhams));
+
+    function themDong() {
+        const tbody = document.getElementById('chiTietBody');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <select name="chiTiets[${rowIndex}].SanPhamId" class="form-select" required>
+                    <option value="">-- Chọn sản phẩm --</option>
+                    ${sanPhams.map(sp => `<option value="${sp.id}">${sp.maSanPham} - ${sp.tenSanPham} (Tồn: ${sp.soLuongTon})</option>`).join('')}
+                </select>
+            </td>
+            <td>
+                <input name="chiTiets[${rowIndex}].DonGiaNhap" type="number" class="form-control text-end" 
+                       id="donGia_${rowIndex}" onchange="tinhTong()" required>
+            </td>
+            <td>
+                <input name="chiTiets[${rowIndex}].SoLuong" type="number" min="1" value="1" 
+                       class="form-control text-center" onchange="tinhTong()" required>
+            </td>
+            <td class="text-end">
+                <span id="thanhTien_${rowIndex}" class="fw-bold">0</span> đ
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm" onclick="xoaDong(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+        rowIndex++;
+    }
+
+    function xoaDong(btn) {
+        btn.closest('tr').remove();
+        tinhTong();
+    }
+
+    function tinhTong() {
+        let tong = 0;
+        document.querySelectorAll('#chiTietBody tr').forEach((row, idx) => {
+            const donGia = parseFloat(row.querySelector('[name*="DonGiaNhap"]').value) || 0;
+            const soLuong = parseInt(row.querySelector('[name*="SoLuong"]').value) || 0;
+            const thanhTien = donGia * soLuong;
+            row.querySelector(`span[id^="thanhTien_"]`).textContent = thanhTien.toLocaleString('vi-VN');
+            tong += thanhTien;
+        });
+        document.getElementById('tongTien').textContent = tong.toLocaleString('vi-VN');
+    }
+
+    themDong();
+</script>
+}
