@@ -20,6 +20,11 @@
                         <input asp-for="MaSanPham" class="form-control" required>
                         <span asp-validation-for="MaSanPham" class="text-danger"></span>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="MaVach" class="form-label">Mã vạch</label>
+                        <input asp-for="MaVach" class="form-control" placeholder="Có thể để trống" />
+                        <span asp-validation-for="MaVach" class="text-danger"></span>
+                    </div>
                     <div class="mb-3">
                         <label asp-for="TenSanPham" class="form-label"></label>
                         <input asp-for="TenSanPham" class="form-control" required>

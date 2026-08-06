@@ -104,15 +104,18 @@ namespace VieITStore.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("MaSanPham,TenSanPham,DanhMucId,ThuongHieu,GiaNhap,GiaBan,GiaKhuyenMai,SoLuongTon,BaoHanh,XuatXu,MoTaNgan,MoTaChiTiet,NoiBat,TrangThai")]
+            [Bind("MaSanPham,MaVach,TenSanPham,DanhMucId,ThuongHieu,GiaNhap,GiaBan,GiaKhuyenMai,SoLuongTon,BaoHanh,XuatXu,MoTaNgan,MoTaChiTiet,NoiBat,TrangThai")]
             SanPham sanPham,
             IFormFile? hinhAnh)
         {
             try
             {
                 sanPham.MaSanPham = sanPham.MaSanPham.Trim();
+                sanPham.MaVach = string.IsNullOrWhiteSpace(sanPham.MaVach) ? null : sanPham.MaVach.Trim();
                 if (await _context.SanPhams.AnyAsync(x => x.MaSanPham == sanPham.MaSanPham))
                     ModelState.AddModelError(nameof(sanPham.MaSanPham), "Mã sản phẩm đã tồn tại.");
+                if (sanPham.MaVach != null && await _context.SanPhams.AnyAsync(x => x.MaVach == sanPham.MaVach))
+                    ModelState.AddModelError(nameof(sanPham.MaVach), "Mã vạch đã tồn tại.");
 
                 // Log ModelState errors
                 if (!ModelState.IsValid)
@@ -187,7 +190,7 @@ namespace VieITStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,MaSanPham,TenSanPham,DanhMucId,ThuongHieu,GiaNhap,GiaBan,GiaKhuyenMai,SoLuongTon,BaoHanh,XuatXu,MoTaNgan,MoTaChiTiet,NoiBat,TrangThai")]
+            [Bind("Id,MaSanPham,MaVach,TenSanPham,DanhMucId,ThuongHieu,GiaNhap,GiaBan,GiaKhuyenMai,SoLuongTon,BaoHanh,XuatXu,MoTaNgan,MoTaChiTiet,NoiBat,TrangThai")]
             SanPham sanPham,
             IFormFile? hinhAnh)
         {
@@ -195,8 +198,11 @@ namespace VieITStore.Areas.Admin.Controllers
             {
                 if (id != sanPham.Id) return NotFound();
                 sanPham.MaSanPham = sanPham.MaSanPham.Trim();
+                sanPham.MaVach = string.IsNullOrWhiteSpace(sanPham.MaVach) ? null : sanPham.MaVach.Trim();
                 if (await _context.SanPhams.AnyAsync(x => x.Id != id && x.MaSanPham == sanPham.MaSanPham))
                     ModelState.AddModelError(nameof(sanPham.MaSanPham), "Mã sản phẩm đã tồn tại.");
+                if (sanPham.MaVach != null && await _context.SanPhams.AnyAsync(x => x.Id != id && x.MaVach == sanPham.MaVach))
+                    ModelState.AddModelError(nameof(sanPham.MaVach), "Mã vạch đã tồn tại.");
 
                 if (!ModelState.IsValid)
                 {
@@ -240,6 +246,7 @@ namespace VieITStore.Areas.Admin.Controllers
 
                     // Cập nhật các thuộc tính
                     existing.MaSanPham = sanPham.MaSanPham;
+                    existing.MaVach = sanPham.MaVach;
                     existing.TenSanPham = sanPham.TenSanPham;
                     existing.DanhMucId = sanPham.DanhMucId;
                     existing.GiaNhap = sanPham.GiaNhap;

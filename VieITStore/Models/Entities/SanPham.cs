@@ -11,6 +11,9 @@ namespace VieITStore.Models.Entities
         [Required]
         public string MaSanPham { get; set; } = string.Empty;
 
+        [MaxLength(100)]
+        public string? MaVach { get; set; }
+
         [Required]
         public string TenSanPham { get; set; } = string.Empty;
 

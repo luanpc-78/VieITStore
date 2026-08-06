@@ -48,6 +48,17 @@
                 </div>
             </div>
 
+            <div class="card border-primary mb-3">
+                <div class="card-body py-3">
+                    <label for="barcodeLookup" class="form-label fw-semibold"><i class="fas fa-barcode"></i> Tra cứu/quét nhanh SKU hoặc mã vạch</label>
+                    <div class="input-group">
+                        <input id="barcodeLookup" class="form-control" autocomplete="off" placeholder="Quét mã hoặc nhập SKU rồi nhấn Enter" />
+                        <button type="button" id="lookupProduct" class="btn btn-primary">Thêm sản phẩm</button>
+                    </div>
+                    <div id="lookupMessage" class="small mt-2" role="status" aria-live="polite"></div>
+                </div>
+            </div>
+
             <div class="d-flex justify-content-between align-items-end mb-2">
                 <h6 class="mb-0">Sản phẩm</h6>
                 <div style="width:min(360px,100%)">
@@ -97,6 +108,7 @@
         })));
         const rows = document.getElementById('productRows');
         const formatMoney = value => Number(value || 0).toLocaleString('vi-VN') + ' đ';
+        const lookupUrl = '@Url.Action("TraCuuSanPham", "BanHangTaiQuay", new { area = "Admin" })';
 
         function optionsHtml() {
             return '<option value="">-- Chọn sản phẩm --</option>' + products.map(p =>
@@ -125,10 +137,76 @@
             document.getElementById('grandTotal').textContent = formatMoney(total);
         }
 
-        document.getElementById('addProduct').addEventListener('click', () => {
+        function addEmptyRow() {
             const row = document.createElement('tr');
             row.innerHTML = `<td><select class="form-select product-select" required>${optionsHtml()}</select></td><td class="stock text-center">-</td><td class="price text-end">0 đ</td><td><input type="number" min="1" value="1" class="form-control quantity" required /></td><td class="line-total text-end fw-bold">0 đ</td><td><button type="button" class="btn btn-outline-danger remove-row"><i class="fas fa-times"></i></button></td>`;
             rows.appendChild(row); reindex(); recalculate();
+            return row;
+        }
+
+        function showLookupMessage(message, isError) {
+            const element = document.getElementById('lookupMessage');
+            element.className = `small mt-2 ${isError ? 'text-danger' : 'text-success'}`;
+            element.textContent = message;
+        }
+
+        async function lookupAndAddProduct() {
+            const input = document.getElementById('barcodeLookup');
+            const code = input.value.trim();
+            if (!code) {
+                showLookupMessage('Vui lòng nhập SKU hoặc mã vạch.', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${lookupUrl}?code=${encodeURIComponent(code)}`, { headers: { 'Accept': 'application/json' } });
+                const data = await response.json();
+                if (!response.ok) {
+                    showLookupMessage(data.message || 'Không thể tra cứu sản phẩm.', true);
+                    return;
+                }
+
+                let row = [...rows.querySelectorAll('tr')].find(item => item.querySelector('.product-select').value === String(data.id));
+                if (row) {
+                    const quantity = row.querySelector('.quantity');
+                    const nextQuantity = Number(quantity.value || 0) + 1;
+                    if (nextQuantity > data.soLuongTon) {
+                        showLookupMessage(`${data.maSanPham} chỉ còn ${data.soLuongTon} sản phẩm.`, true);
+                        return;
+                    }
+                    quantity.value = nextQuantity;
+                } else {
+                    row = [...rows.querySelectorAll('tr')].find(item => !item.querySelector('.product-select').value) || addEmptyRow();
+                    const select = row.querySelector('.product-select');
+                    let option = [...select.options].find(item => item.value === String(data.id));
+                    if (!option) {
+                        option = new Option(`${data.maSanPham} - ${data.tenSanPham}`, data.id);
+                        option.dataset.stock = data.soLuongTon;
+                        option.dataset.price = data.donGia;
+                        select.add(option);
+                    }
+                    select.value = String(data.id);
+                    row.querySelector('.quantity').value = 1;
+                }
+
+                input.value = '';
+                reindex();
+                recalculate();
+                showLookupMessage(`Đã thêm ${data.maSanPham} - ${data.tenSanPham}.`, false);
+                input.focus();
+            } catch {
+                showLookupMessage('Không thể kết nối để tra cứu sản phẩm.', true);
+            }
+        }
+
+        document.getElementById('addProduct').addEventListener('click', () => {
+            addEmptyRow();
+        });
+        document.getElementById('lookupProduct').addEventListener('click', lookupAndAddProduct);
+        document.getElementById('barcodeLookup').addEventListener('keydown', event => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            lookupAndAddProduct();
         });
         rows.addEventListener('input', recalculate);
         rows.addEventListener('change', recalculate);

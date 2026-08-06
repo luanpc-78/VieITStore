@@ -37,6 +37,15 @@ namespace VieITStore.Models
                 .HasIndex(x => x.MaSerial)
                 .IsUnique();
 
+            modelBuilder.Entity<SanPham>()
+                .HasIndex(x => x.MaSanPham)
+                .IsUnique();
+
+            modelBuilder.Entity<SanPham>()
+                .HasIndex(x => x.MaVach)
+                .IsUnique()
+                .HasFilter("[MaVach] IS NOT NULL");
+
             modelBuilder.Entity<SerialSanPham>()
                 .HasOne(x => x.SanPham)
                 .WithMany(x => x.SerialSanPhams)

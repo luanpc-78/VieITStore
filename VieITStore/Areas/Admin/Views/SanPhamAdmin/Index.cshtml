@@ -31,7 +31,7 @@
                         <td>
                             <img src="@(sp.HinhAnh ?? "/images/no-image.jpg")" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
                         </td>
-                        <td>@sp.MaSanPham</td>
+                        <td><div>@sp.MaSanPham</div><small class="text-muted">Mã vạch: @(sp.MaVach ?? "—")</small></td>
                         <td>
                             <strong>@sp.TenSanPham</strong><br>
                             <small class="text-muted">@sp.ThuongHieu</small>

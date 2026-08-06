@@ -161,6 +161,45 @@ public class BanHangTaiQuayController : Controller
         return await ReturnInvalidModel(model);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> TraCuuSanPham(string? code)
+    {
+        code = code?.Trim();
+        if (string.IsNullOrEmpty(code))
+            return BadRequest(new { message = "Vui lòng nhập SKU hoặc mã vạch." });
+
+        var product = await _context.SanPhams.AsNoTracking()
+            .Where(x => x.MaSanPham == code || x.MaVach == code)
+            .Select(x => new
+            {
+                x.Id,
+                x.MaSanPham,
+                x.MaVach,
+                x.TenSanPham,
+                x.SoLuongTon,
+                x.TrangThai,
+                DonGia = x.GiaKhuyenMai.HasValue && x.GiaKhuyenMai.Value > 0 ? x.GiaKhuyenMai.Value : x.GiaBan
+            })
+            .FirstOrDefaultAsync();
+
+        if (product == null)
+            return NotFound(new { message = "Không tìm thấy sản phẩm theo SKU hoặc mã vạch." });
+        if (!product.TrangThai)
+            return Conflict(new { message = $"Sản phẩm {product.MaSanPham} đã ngừng bán." });
+        if (product.SoLuongTon <= 0)
+            return Conflict(new { message = $"Sản phẩm {product.MaSanPham} đã hết hàng." });
+
+        return Ok(new TraCuuSanPhamTaiQuayDTO
+        {
+            Id = product.Id,
+            MaSanPham = product.MaSanPham,
+            MaVach = product.MaVach,
+            TenSanPham = product.TenSanPham,
+            SoLuongTon = product.SoLuongTon,
+            DonGia = product.DonGia
+        });
+    }
+
     private async Task<IActionResult> ReturnInvalidModel(BanHangTaiQuayVM model)
     {
         model.RequestToken = IssueRequestToken();
