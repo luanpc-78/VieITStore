@@ -1,50 +1,243 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - VieITStore</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/VieITStore.styles.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+            :root {
+                --primary: #2563eb;
+                --secondary: #f59e0b;
+                --dark: #1e293b;
+            }
+
+            body {
+                font-family: 'Roboto', sans-serif;
+                background: #f8fafc;
+            }
+
+            .navbar {
+                background: linear-gradient(135deg, var(--dark) 0%, #334155 100%);
+            }
+
+            .navbar-brand {
+                font-weight: 700;
+                font-size: 1.5rem;
+            }
+
+                .navbar-brand i {
+                    color: var(--secondary);
+                }
+
+            .nav-link {
+                font-weight: 500;
+                transition: 0.3s;
+            }
+
+                .nav-link:hover {
+                    color: var(--secondary) !important;
+                }
+
+            .product-card {
+                transition: transform 0.3s, box-shadow 0.3s;
+                border: none;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+                .product-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                }
+
+            .product-img {
+                height: 220px;
+                object-fit: cover;
+            }
+
+            .price {
+                color: var(--primary);
+                font-weight: 700;
+                font-size: 1.2rem;
+            }
+
+            .old-price {
+                text-decoration: line-through;
+                color: #94a3b8;
+                font-size: 0.9rem;
+            }
+
+            .badge-sale {
+                background: #ef4444;
+            }
+
+            .btn-primary {
+                background: var(--primary);
+                border: none;
+                border-radius: 8px;
+            }
+
+                .btn-primary:hover {
+                    background: #1d4ed8;
+                }
+
+            .footer {
+                background: var(--dark);
+                color: #cbd5e1;
+                margin-top: 50px;
+            }
+
+            .cart-badge {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                background: #ef4444;
+                color: white;
+                border-radius: 50%;
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">VieITStore</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-microchip"></i> VieITStore</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home"></i> Trang chủ</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-th-large"></i> Danh mục
+                        </a>
+                        <ul class="dropdown-menu">
+                            @foreach (var dm in ViewBag.DanhMucs ?? new List<VieITStore.Models.Entities.DanhMuc>())
+                            {
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "SanPham", new { danhMucId = dm.Id })">@dm.TenDanhMuc</a></li>
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "SanPham")"><i class="fas fa-box"></i> Sản phẩm</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item position-relative me-3">
+                        <a class="nav-link" href="@Url.Action("Index", "GioHang")">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </a>
+                    </li>
+                    @{
+                        var userId = Context.Session.GetInt32("UserId");
+                        var userName = Context.Session.GetString("UserName");
+                        var vaiTro = Context.Session.GetString("VaiTro");
+                    }
+                    @if (userId != null)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> @userName
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "HoSo")"><i class="fas fa-user"></i> Hồ sơ của tôi</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "DonHang")"><i class="fas fa-box-open"></i> Đơn hàng của tôi</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                @if (vaiTro == "Admin" || vaiTro == "NhanVien")
+                                {
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Dashboard", new { area = "Admin" })"><i class="fas fa-cog"></i> Quản trị</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                }
+                                <li><a class="dropdown-item" href="@Url.Action("DangXuat", "TaiKhoan")"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("DangNhap", "TaiKhoan")"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
+                        <li class="nav-item"><a class="nav-link btn btn-primary btn-sm text-white px-3 ms-2" href="@Url.Action("DangKy", "TaiKhoan")">Đăng ký</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+            <div class="toast show align-items-center text-white bg-success" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+        </div>
+    }
 
-    <footer class="border-top footer text-muted">
+    <main class="min-vh-100">
+        @RenderBody()
+    </main>
+
+    <footer class="footer py-5">
         <div class="container">
-            &copy; 2026 - VieITStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-microchip"></i> VieITStore</h5>
+                    <p>Chuyên cung cấp linh kiện điện tử, phụ kiện máy tính và điện thoại chính hãng.</p>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Nguyễn Văn A, Quận 1, TP.HCM</p>
+                    <p><i class="fas fa-phone"></i> 1900 1234</p>
+                </div>
+                <div class="col-md-2">
+                    <h6>Về chúng tôi</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-decoration-none text-secondary">Giới thiệu</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6>Hỗ trợ</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-decoration-none text-secondary">Chính sách bảo hành</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">Đổi trả</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Đăng ký nhận tin</h6>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Email của bạn">
+                        <button class="btn btn-primary">Đăng ký</button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary">
+            <div class="text-center text-secondary">
+                <small> VieITStore - All rights reserved.</small>
+            </div>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script>
+            function updateCartCount() {
+                $.get('@Url.Action("GetCartCount", "GioHang")', function (data) {
+                    $('#cartCount').text(data.count);
+                });
+            }
+            $(document).ready(function () {
+                updateCartCount();
+                setTimeout(function () { $('.toast').toast('hide'); }, 3000);
+            });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

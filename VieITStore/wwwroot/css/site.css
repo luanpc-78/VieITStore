@@ -1,31 +1,79 @@
-html {
-  font-size: 14px;
+/* Layout sidebar */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+    transition: all 0.3s;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    #sidebar.active {
+        margin-left: -250px;
+    }
+
+    #sidebar ul.components {
+        padding: 20px 0;
+    }
+
+    #sidebar ul li a {
+        padding: 10px 20px;
+        font-size: 1.1em;
+        display: block;
+        color: #fff;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+        #sidebar ul li a:hover {
+            background: #495057;
+        }
+
+    #sidebar ul li.active a {
+        background: #0d6efd;
+    }
+
+#content {
+    width: 100%;
+    padding: 0;
+    min-height: 100vh;
+    transition: all 0.3s;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* Card styles */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
-body {
-  margin-bottom: 60px;
+/* Table styles */
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
-}
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+    #sidebar, .navbar {
+        display: none !important;
+    }
+
+    #content {
+        margin: 0;
+        padding: 0;
+    }
+
+    .card {
+        border: none;
+        box-shadow: none;
+    }
 }
