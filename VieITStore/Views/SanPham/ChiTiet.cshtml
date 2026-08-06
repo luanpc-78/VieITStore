@@ -18,6 +18,10 @@
         <div class="col-md-5">
             <div class="card">
                 <img src="@(Model.HinhAnh ?? "/images/no-image.jpg")" class="card-img-top" alt="@Model.TenSanPham" style="max-height: 400px; object-fit: contain;">
+                @if (!string.IsNullOrWhiteSpace(Model.HinhAnhBoSung))
+                {
+                    <div class="d-flex gap-2 flex-wrap p-2">@foreach(var image in Model.HinhAnhBoSung.Split('|', StringSplitOptions.RemoveEmptyEntries)){<img src="@image" alt="Ảnh @Model.TenSanPham" style="width:80px;height:80px;object-fit:cover" class="border rounded"/>}</div>
+                }
             </div>
         </div>
 
@@ -51,18 +55,10 @@
                 </div>
             </div>
 
-            <div class="d-flex gap-2">
-                <button class="btn btn-primary btn-lg" onclick="addToCartWithQty(@Model.Id)" disabled="@(Model.SoLuongTon <= 0)">
-                    <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
-                </button>
-                <a href="@Url.Action("Index", "GioHang")" class="btn btn-warning btn-lg">
-                    <i class="fas fa-shopping-cart"></i> Xem giỏ hàng
-                </a>
-            </div>
-
             <hr>
             <h6>Mô tả chi tiết</h6>
             <p>@(Model.MoTaChiTiet ?? "Chưa có mô tả chi tiết")</p>
+            @if (!string.IsNullOrWhiteSpace(Model.ThongSoKyThuat)) { <h6>Thông số kỹ thuật</h6><div style="white-space:pre-line">@Model.ThongSoKyThuat</div> }
         </div>
     </div>
 

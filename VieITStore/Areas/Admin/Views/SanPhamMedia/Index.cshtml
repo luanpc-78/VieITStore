@@ -1,0 +1,73 @@
+@model SanPham
+@{
+    ViewData["Title"] = "Ảnh và thông số sản phẩm";
+    var gallery = string.IsNullOrWhiteSpace(Model.HinhAnhBoSung)
+        ? Array.Empty<string>()
+        : Model.HinhAnhBoSung.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="mb-1">@Model.TenSanPham</h5>
+        <span class="text-muted">@Model.MaSanPham · @Model.DanhMuc?.TenDanhMuc</span>
+    </div>
+    <a asp-controller="SanPhamAdmin" asp-action="Index" class="btn btn-outline-secondary">Quay lại sản phẩm</a>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><strong>Thư viện ảnh bổ sung (@gallery.Length/5)</strong></div>
+            <div class="card-body">
+                @if (gallery.Length == 0)
+                {
+                    <p class="text-muted">Sản phẩm chưa có ảnh bổ sung.</p>
+                }
+                else
+                {
+                    <div class="row g-3 mb-4">
+                    @foreach (var image in gallery)
+                    {
+                        <div class="col-sm-6 col-md-4">
+                            <div class="border rounded p-2 text-center">
+                                <img src="@image" alt="Ảnh @Model.TenSanPham" class="img-fluid mb-2" style="height:140px;width:100%;object-fit:cover" />
+                                <form asp-action="XoaAnh" method="post">
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <input type="hidden" name="imagePath" value="@image" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Xóa ảnh này khỏi thư viện?')">Xóa ảnh</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                    </div>
+                }
+
+                @if (gallery.Length < 5)
+                {
+                    <form asp-action="ThemAnh" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <label for="galleryFiles" class="form-label">Thêm ảnh (tối đa 5 ảnh, mỗi ảnh không quá 5 MB)</label>
+                        <input id="galleryFiles" type="file" name="hinhAnhBoSung" class="form-control" accept=".jpg,.jpeg,.png,.gif,.webp" multiple required />
+                        <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-upload"></i> Tải ảnh lên</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><strong>Thông số kỹ thuật nâng cao</strong></div>
+            <div class="card-body">
+                <form asp-action="CapNhatThongSo" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <textarea name="thongSoKyThuat" class="form-control" rows="14" placeholder="Mỗi dòng một thông số, ví dụ:&#10;Công suất: 500W&#10;Điện áp: 220V">@Model.ThongSoKyThuat</textarea>
+                    <button type="submit" class="btn btn-success mt-3"><i class="fas fa-save"></i> Lưu thông số</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
