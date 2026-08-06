@@ -21,10 +21,28 @@ namespace VieITStore.Models
         public DbSet<PhieuNhap> PhieuNhaps { get; set; }
         public DbSet<ChiTietPhieuNhap> ChiTietPhieuNhaps { get; set; }
         public DbSet<DanhGia> DanhGias { get; set; }
+        public DbSet<PhieuDieuChinhTonKho> PhieuDieuChinhTonKhos { get; set; }
+        public DbSet<ChiTietDieuChinhTonKho> ChiTietDieuChinhTonKhos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<PhieuDieuChinhTonKho>()
+                .HasIndex(x => x.MaPhieu)
+                .IsUnique();
+
+            modelBuilder.Entity<PhieuDieuChinhTonKho>()
+                .HasOne(x => x.NguoiThucHien)
+                .WithMany()
+                .HasForeignKey(x => x.NguoiThucHienId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChiTietDieuChinhTonKho>()
+                .HasOne(x => x.SanPham)
+                .WithMany()
+                .HasForeignKey(x => x.SanPhamId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<HoaDon>()
                 .HasIndex(h => h.DonHangId)
