@@ -36,6 +36,12 @@
                             <label asp-for="GhiNho" class="form-check-label"></label>
                         </div>
 
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                        </button>
+                        <a asp-controller="KhoiPhucMatKhau" asp-action="QuenMatKhau" class="d-block text-center mt-3">Quên mật khẩu?</a>
+                    </form>
+
                     <hr class="my-4">
                     <div class="text-center">
                         <p>Chưa có tài khoản? <a href="@Url.Action("DangKy")">Đăng ký ngay</a></p>

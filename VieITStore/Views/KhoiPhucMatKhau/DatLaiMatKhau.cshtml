@@ -1,0 +1,41 @@
+@model DatLaiMatKhauVM
+@{
+    ViewData["Title"] = "Đặt lại mật khẩu";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm"><div class="card-body p-4">
+                <h3>Đặt lại mật khẩu</h3>
+                @if (TempData["Info"] != null) { <div class="alert alert-info">@TempData["Info"]</div> }
+                @if (TempData["DemoResetCode"] != null) { <div class="alert alert-warning">Mã demo: <strong>@TempData["DemoResetCode"]</strong></div> }
+
+                <form asp-action="DatLaiMatKhau" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="TaiKhoan" type="hidden" />
+                    <div class="mb-3">
+                        <label asp-for="MaXacNhan" class="form-label">Mã xác nhận</label>
+                        <input asp-for="MaXacNhan" class="form-control" inputmode="numeric" maxlength="6" />
+                        <span asp-validation-for="MaXacNhan" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MatKhauMoi" class="form-label">Mật khẩu mới</label>
+                        <input asp-for="MatKhauMoi" class="form-control" />
+                        <span asp-validation-for="MatKhauMoi" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="XacNhanMatKhau" class="form-label">Xác nhận mật khẩu</label>
+                        <input asp-for="XacNhanMatKhau" class="form-control" />
+                        <span asp-validation-for="XacNhanMatKhau" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Đổi mật khẩu</button>
+                </form>
+            </div></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

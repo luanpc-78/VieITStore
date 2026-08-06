@@ -1,0 +1,29 @@
+@model QuenMatKhauVM
+@{
+    ViewData["Title"] = "Quên mật khẩu";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm"><div class="card-body p-4">
+                <h3>Quên mật khẩu</h3>
+                <p class="text-muted">Nhập tên đăng nhập hoặc email đã đăng ký để tạo mã xác nhận.</p>
+                <form asp-action="QuenMatKhau" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="TaiKhoan" class="form-label">Tên đăng nhập hoặc email</label>
+                        <input asp-for="TaiKhoan" class="form-control" autofocus />
+                        <span asp-validation-for="TaiKhoan" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Tạo mã xác nhận</button>
+                </form>
+                <a asp-controller="TaiKhoan" asp-action="DangNhap" class="d-block text-center mt-3">Quay lại đăng nhập</a>
+            </div></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
