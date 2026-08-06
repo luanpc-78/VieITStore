@@ -1,0 +1,172 @@
+﻿@model VieITStore.Models.ViewModels.ThanhToanVM
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+
+<div class="container py-4">
+    <h3><i class="fas fa-credit-card"></i> Thanh toán</h3>
+
+    <form asp-action="DatHang" method="post">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-truck"></i> Thông tin giao hàng
+                    </div>
+                    <div class="card-body">
+                        @if (Model.DiaChiGiaoHangs.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Chọn địa chỉ đã lưu</label>
+                                <select class="form-select" id="diaChiSelect" onchange="chonDiaChi(this)">
+                                    <option value="">-- Địa chỉ mới --</option>
+                                    @foreach (var dc in Model.DiaChiGiaoHangs)
+                                    {
+                                        <option value="@dc.Id" data-hoten="@dc.HoTenNguoiNhan" data-sdt="@dc.SoDienThoai"
+                                                data-tinh="@dc.TinhThanh" data-quan="@dc.QuanHuyen" data-phuong="@dc.PhuongXa"
+                                                data-diachi="@dc.DiaChiChiTiet">
+                                            @dc.HoTenNguoiNhan - @dc.DiaChiChiTiet, @dc.PhuongXa, @dc.QuanHuyen, @dc.TinhThanh
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="HoTenNguoiNhan" class="form-label"></label>
+                                <input asp-for="HoTenNguoiNhan" class="form-control" required>
+                                <span asp-validation-for="HoTenNguoiNhan" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SoDienThoai" class="form-label"></label>
+                                <input asp-for="SoDienThoai" class="form-control" required>
+                                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="TinhThanh" class="form-label"></label>
+                                <select asp-for="TinhThanh" class="form-select" required>
+                                    <option value="">Chọn Tỉnh/TP</option>
+                                    <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Cần Thơ">Cần Thơ</option>
+                                    <option value="Hải Phòng">Hải Phòng</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="QuanHuyen" class="form-label"></label>
+                                <input asp-for="QuanHuyen" class="form-control" placeholder="Quận/Huyện" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PhuongXa" class="form-label"></label>
+                                <input asp-for="PhuongXa" class="form-control" placeholder="Phường/Xã" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DiaChiChiTiet" class="form-label"></label>
+                            <input asp-for="DiaChiChiTiet" class="form-control" placeholder="Số nhà, đường, tòa nhà..." required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="GhiChu" class="form-label"></label>
+                            <textarea asp-for="GhiChu" class="form-control" rows="2" placeholder="Ghi chú cho đơn hàng (không bắt buộc)"></textarea>
+                        </div>
+
+                        <div class="form-check">
+                            <input asp-for="LuuDiaChi" class="form-check-input" type="checkbox">
+                            <label asp-for="LuuDiaChi" class="form-check-label">Lưu địa chỉ này cho lần sau</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-wallet"></i> Phương thức thanh toán
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-2 p-3 border rounded">
+                            <input class="form-check-input" type="radio" asp-for="PhuongThucThanhToan" value="COD" id="pttt1" checked>
+                            <label class="form-check-label" for="pttt1">
+                                <i class="fas fa-money-bill-wave text-success"></i> <strong>Thanh toán khi nhận hàng (COD)</strong>
+                                <p class="mb-0 text-muted small">Nhận hàng và thanh toán tiền mặt cho shipper</p>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2 p-3 border rounded">
+                            <input class="form-check-input" type="radio" asp-for="PhuongThucThanhToan" value="ChuyenKhoan" id="pttt2">
+                            <label class="form-check-label" for="pttt2">
+                                <i class="fas fa-university text-primary"></i> <strong>Chuyển khoản ngân hàng</strong>
+                                <p class="mb-0 text-muted small">Chuyển khoản đến tài khoản VieITStore</p>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2 p-3 border rounded">
+                            <input class="form-check-input" type="radio" asp-for="PhuongThucThanhToan" value="ViDienTu" id="pttt3">
+                            <label class="form-check-label" for="pttt3">
+                                <i class="fas fa-mobile-alt text-danger"></i> <strong>Ví điện tử (Momo, ZaloPay, VNPay)</strong>
+                                <p class="mb-0 text-muted small">Thanh toán qua ví điện tử</p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="card sticky-top" style="top: 80px;">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-receipt"></i> Đơn hàng của bạn
+                    </div>
+                    <div class="card-body">
+                        @foreach (var item in Model.GioHang.Items)
+                        {
+                            <div class="d-flex justify-content-between mb-2">
+                                <div>
+                                    <span class="badge bg-secondary">@item.SoLuong x</span>
+                                    <small>@item.TenSanPham</small>
+                                </div>
+                                <small>@item.ThanhTien.ToString("N0") đ</small>
+                            </div>
+                        }
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tạm tính:</span>
+                            <span>@Model.GioHang.TongTien.ToString("N0") đ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Phí vận chuyển:</span>
+                            <span>30.000 đ</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="fw-bold fs-5">Tổng thanh toán:</span>
+                            <span class="fw-bold text-danger fs-4">@((Model.GioHang.TongTien + 30000).ToString("N0")) đ</span>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 btn-lg">
+                            <i class="fas fa-check-circle"></i> Đặt hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function chonDiaChi(select) {
+            var option = select.options[select.selectedIndex];
+            if (option.value) {
+                document.getElementById('HoTenNguoiNhan').value = option.getAttribute('data-hoten');
+                document.getElementById('SoDienThoai').value = option.getAttribute('data-sdt');
+                document.getElementById('TinhThanh').value = option.getAttribute('data-tinh');
+                document.getElementById('QuanHuyen').value = option.getAttribute('data-quan');
+                document.getElementById('PhuongXa').value = option.getAttribute('data-phuong');
+                document.getElementById('DiaChiChiTiet').value = option.getAttribute('data-diachi');
+            }
+        }
+    </script>
+}
