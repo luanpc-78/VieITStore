@@ -44,6 +44,10 @@ namespace VieITStore.Models
                 .HasForeignKey(x => x.SanPhamId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<DonHang>()
+                .HasIndex(x => x.MaDonHang)
+                .IsUnique();
+
             modelBuilder.Entity<HoaDon>()
                 .HasIndex(h => h.DonHangId)
                 .IsUnique();

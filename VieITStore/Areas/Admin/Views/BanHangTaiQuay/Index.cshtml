@@ -1,0 +1,152 @@
+@model BanHangTaiQuayVM
+@{
+    ViewData["Title"] = "Bán hàng tại quầy";
+    var customers = ViewBag.KhachHangs as List<KhachHang> ?? [];
+    var products = ViewBag.SanPhams as List<SanPham> ?? [];
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-cash-register"></i> Tạo đơn bán hàng tại quầy</h5>
+        <span class="badge bg-primary">Kênh: Tại quầy</span>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" id="posForm">
+            <input asp-for="RequestToken" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="KhachHangId" class="form-label">Khách hàng</label>
+                    <select asp-for="KhachHangId" class="form-select" required>
+                        <option value="">-- Chọn khách hàng --</option>
+                        @foreach (var customer in customers)
+                        {
+                            <option value="@customer.Id">@customer.NguoiDung?.HoTen — @(customer.NguoiDung?.SoDienThoai ?? customer.NguoiDung?.Email)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="KhachHangId" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="PhuongThucThanhToan" class="form-label">Phương thức thanh toán</label>
+                    <select asp-for="PhuongThucThanhToan" class="form-select" required>
+                        <option value="5">Tiền mặt</option>
+                        <option value="2">Chuyển khoản</option>
+                        <option value="3">Ví điện tử</option>
+                        <option value="4">Thẻ tín dụng</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check mb-2">
+                        <input asp-for="DaThanhToan" class="form-check-input" />
+                        <label asp-for="DaThanhToan" class="form-check-label">Đã thanh toán tại quầy</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label asp-for="GhiChu" class="form-label">Ghi chú</label>
+                    <textarea asp-for="GhiChu" class="form-control" rows="2" maxlength="500"></textarea>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-end mb-2">
+                <h6 class="mb-0">Sản phẩm</h6>
+                <div style="width:min(360px,100%)">
+                    <label for="productSearch" class="form-label small mb-1">Tìm theo mã hoặc tên sản phẩm</label>
+                    <input id="productSearch" class="form-control form-control-sm" placeholder="Nhập từ khóa để lọc danh sách..." />
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light"><tr><th>Sản phẩm</th><th style="width:110px">Tồn</th><th style="width:150px">Đơn giá</th><th style="width:130px">Số lượng</th><th style="width:170px">Thành tiền</th><th style="width:55px"></th></tr></thead>
+                    <tbody id="productRows">
+                    @for (var index = 0; index < Model.ChiTiets.Count; index++)
+                    {
+                        <tr>
+                            <td><select name="ChiTiets[@index].SanPhamId" class="form-select product-select" required><option value="">-- Chọn sản phẩm --</option>
+                                @foreach (var product in products)
+                                {
+                                    var price = product.GiaKhuyenMai is > 0 ? product.GiaKhuyenMai.Value : product.GiaBan;
+                                    <option value="@product.Id" data-stock="@product.SoLuongTon" data-price="@price" selected="@(Model.ChiTiets[index].SanPhamId == product.Id)">@product.MaSanPham - @product.TenSanPham</option>
+                                }
+                            </select></td>
+                            <td class="stock text-center">-</td><td class="price text-end">0 đ</td>
+                            <td><input name="ChiTiets[@index].SoLuong" value="@Model.ChiTiets[index].SoLuong" type="number" min="1" class="form-control quantity" required /></td>
+                            <td class="line-total text-end fw-bold">0 đ</td>
+                            <td><button type="button" class="btn btn-outline-danger remove-row"><i class="fas fa-times"></i></button></td>
+                        </tr>
+                    }
+                    </tbody>
+                    <tfoot><tr class="table-primary"><td colspan="4" class="text-end fw-bold">TỔNG THANH TOÁN</td><td id="grandTotal" class="text-end fw-bold fs-5">0 đ</td><td></td></tr></tfoot>
+                </table>
+            </div>
+            <button type="button" id="addProduct" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
+
+            <div class="text-end mt-4">
+                <button type="submit" id="submitOrder" class="btn btn-success btn-lg" onclick="return confirm('Xác nhận tạo đơn và trừ tồn kho?')"><i class="fas fa-check"></i> Xác nhận tạo đơn</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const products = @Html.Raw(Json.Serialize(products.Select(p => new {
+            p.Id, p.MaSanPham, p.TenSanPham, p.SoLuongTon,
+            DonGia = p.GiaKhuyenMai.HasValue && p.GiaKhuyenMai.Value > 0 ? p.GiaKhuyenMai.Value : p.GiaBan
+        })));
+        const rows = document.getElementById('productRows');
+        const formatMoney = value => Number(value || 0).toLocaleString('vi-VN') + ' đ';
+
+        function optionsHtml() {
+            return '<option value="">-- Chọn sản phẩm --</option>' + products.map(p =>
+                `<option value="${p.id}" data-stock="${p.soLuongTon}" data-price="${p.donGia}">${p.maSanPham} - ${p.tenSanPham}</option>`).join('');
+        }
+
+        function reindex() {
+            [...rows.querySelectorAll('tr')].forEach((row, index) => {
+                row.querySelector('.product-select').name = `ChiTiets[${index}].SanPhamId`;
+                row.querySelector('.quantity').name = `ChiTiets[${index}].SoLuong`;
+            });
+        }
+
+        function recalculate() {
+            let total = 0;
+            rows.querySelectorAll('tr').forEach(row => {
+                const option = row.querySelector('.product-select').selectedOptions[0];
+                const stock = Number(option?.dataset.stock || 0);
+                const price = Number(option?.dataset.price || 0);
+                const quantity = Number(row.querySelector('.quantity').value || 0);
+                row.querySelector('.stock').textContent = option?.value ? stock : '-';
+                row.querySelector('.price').textContent = formatMoney(price);
+                row.querySelector('.line-total').textContent = formatMoney(price * quantity);
+                total += price * quantity;
+            });
+            document.getElementById('grandTotal').textContent = formatMoney(total);
+        }
+
+        document.getElementById('addProduct').addEventListener('click', () => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td><select class="form-select product-select" required>${optionsHtml()}</select></td><td class="stock text-center">-</td><td class="price text-end">0 đ</td><td><input type="number" min="1" value="1" class="form-control quantity" required /></td><td class="line-total text-end fw-bold">0 đ</td><td><button type="button" class="btn btn-outline-danger remove-row"><i class="fas fa-times"></i></button></td>`;
+            rows.appendChild(row); reindex(); recalculate();
+        });
+        rows.addEventListener('input', recalculate);
+        rows.addEventListener('change', recalculate);
+        rows.addEventListener('click', event => {
+            const button = event.target.closest('.remove-row');
+            if (!button || rows.children.length === 1) return;
+            button.closest('tr').remove(); reindex(); recalculate();
+        });
+        document.getElementById('productSearch').addEventListener('input', event => {
+            const term = event.target.value.trim().toLocaleLowerCase('vi');
+            document.querySelectorAll('.product-select option').forEach(option => {
+                if (!option.value) return;
+                option.hidden = term.length > 0 && !option.textContent.toLocaleLowerCase('vi').includes(term);
+            });
+        });
+        document.getElementById('posForm').addEventListener('submit', () => {
+            document.getElementById('submitOrder').disabled = true;
+        });
+        reindex(); recalculate();
+    </script>
+}

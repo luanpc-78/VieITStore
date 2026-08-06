@@ -19,7 +19,8 @@ namespace VieITStore.Models.Entities
         COD = 1,
         ChuyenKhoan = 2,
         ViDienTu = 3,
-        TheTinDung = 4
+        TheTinDung = 4,
+        TienMat = 5
     }
 
     public class DonHang
@@ -28,7 +29,11 @@ namespace VieITStore.Models.Entities
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(40)]
         public string MaDonHang { get; set; } = string.Empty;
+
+        [Required, MaxLength(30)]
+        public string KenhBan { get; set; } = "Trực tuyến";
 
         [Required]
         public int KhachHangId { get; set; }
