@@ -1,0 +1,71 @@
+﻿@model List<VieITStore.Models.Entities.SanPham>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0">Danh sách sản phẩm</h5>
+    <a href="@Url.Action("Create")" class="btn btn-success"><i class="fas fa-plus"></i> Thêm sản phẩm</a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th width="60">Hình</th>
+                    <th>Mã SP</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th class="text-end">Giá nhập</th>
+                    <th class="text-end">Giá bán</th>
+                    <th class="text-center">Tồn</th>
+                    <th>Trạng thái</th>
+                    <th width="160">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sp in Model)
+                {
+                    <tr class="@(sp.SoLuongTon <= 10 ? "table-warning" : "")">
+                        <td>
+                            <img src="@(sp.HinhAnh ?? "/images/no-image.jpg")" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                        </td>
+                        <td>@sp.MaSanPham</td>
+                        <td>
+                            <strong>@sp.TenSanPham</strong><br>
+                            <small class="text-muted">@sp.ThuongHieu</small>
+                        </td>
+                        <td>@sp.DanhMuc?.TenDanhMuc</td>
+                        <td class="text-end">@sp.GiaNhap.ToString("N0") đ</td>
+                        <td class="text-end fw-bold text-primary">@sp.GiaBan.ToString("N0") đ</td>
+                        <td class="text-center">
+                            <span class="badge @(sp.SoLuongTon <= 10 ? "bg-danger" : "bg-success")">@sp.SoLuongTon</span>
+                        </td>
+                        <td>
+                            @if (sp.TrangThai)
+                            {
+                                <span class="badge bg-success">Đang bán</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Ngừng bán</span>
+                            }
+                        </td>
+                        <td class="table-actions">
+                            <a href="@Url.Action("Edit", new { id = sp.Id })" class="btn btn-warning btn-sm" title="Sửa sản phẩm"><i class="fas fa-edit"></i></a>
+                            <a asp-controller="SanPhamMedia" asp-action="Index" asp-route-id="@sp.Id" class="btn btn-info btn-sm" title="Ảnh và thông số"><i class="fas fa-images"></i></a>
+                            @if (sp.TrangThai)
+                            {
+                                <form asp-action="NgungBan" asp-route-id="@sp.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Ngừng bán" onclick="return confirm('Chuyển sản phẩm này sang trạng thái ngừng bán?')"><i class="fas fa-ban"></i></button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
