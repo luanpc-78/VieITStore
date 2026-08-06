@@ -148,7 +148,7 @@ namespace VieITStore.Models
                     Email = "admin@vieitstore.com",
                     VaiTro = VaiTro.Admin,
                     TrangThai = true,
-                    NgayTao = DateTime.Now
+                    NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 742, DateTimeKind.Local).AddTicks(1862)
                 },
                 new NguoiDung
                 {
@@ -159,7 +159,7 @@ namespace VieITStore.Models
                     Email = "nhanvien@vieitstore.com",
                     VaiTro = VaiTro.NhanVien,
                     TrangThai = true,
-                    NgayTao = DateTime.Now
+                    NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 742, DateTimeKind.Local).AddTicks(2507)
                 },
                 new NguoiDung
                 {
@@ -170,7 +170,7 @@ namespace VieITStore.Models
                     Email = "khachhang@vieitstore.com",
                     VaiTro = VaiTro.KhachHang,
                     TrangThai = true,
-                    NgayTao = DateTime.Now
+                    NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 742, DateTimeKind.Local).AddTicks(2510)
                 }
             );
 
@@ -206,6 +206,8 @@ namespace VieITStore.Models
                     HinhAnh = "/images/cpu-i5.jpg",
                     SoLuongTon = 50,
                     SoLuongDaBan = 10,
+                    NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 743, DateTimeKind.Local).AddTicks(5978),
+                    NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 743, DateTimeKind.Local).AddTicks(5983),
                     TrangThai = true
                 },
                 new SanPham
@@ -221,6 +223,8 @@ namespace VieITStore.Models
                     HinhAnh = "/images/gpu-rtx3060.jpg",
                     SoLuongTon = 30,
                     SoLuongDaBan = 5,
+                    NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3896),
+                    NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3899),
                     TrangThai = true
                 },
                 new SanPham
@@ -236,6 +240,8 @@ namespace VieITStore.Models
                     HinhAnh = "/images/ssd-samsung.jpg",
                     SoLuongTon = 100,
                     SoLuongDaBan = 25,
+                    NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3908),
+                    NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3908),
                     TrangThai = true
                 },
                 new SanPham
@@ -251,6 +257,8 @@ namespace VieITStore.Models
                     HinhAnh = "/images/cable-typec.jpg",
                     SoLuongTon = 200,
                     SoLuongDaBan = 60,
+                    NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3913),
+                    NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3913),
                     TrangThai = true
                 },
                 new SanPham
@@ -266,6 +274,8 @@ namespace VieITStore.Models
                     HinhAnh = "/images/mouse-logitech.jpg",
                     SoLuongTon = 45,
                     SoLuongDaBan = 15,
+                    NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3918),
+                    NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3919),
                     TrangThai = true
                 }
             );
