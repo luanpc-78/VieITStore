@@ -1,29 +1,4 @@
 @model QuenMatKhauVM
-@{
-    ViewData["Title"] = "Quên mật khẩu";
-}
-
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-sm"><div class="card-body p-4">
-                <h3>Quên mật khẩu</h3>
-                <p class="text-muted">Nhập tên đăng nhập hoặc email đã đăng ký để tạo mã xác nhận.</p>
-                <form asp-action="QuenMatKhau" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="mb-3">
-                        <label asp-for="TaiKhoan" class="form-label">Tên đăng nhập hoặc email</label>
-                        <input asp-for="TaiKhoan" class="form-control" autofocus />
-                        <span asp-validation-for="TaiKhoan" class="text-danger"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Tạo mã xác nhận</button>
-                </form>
-                <a asp-controller="TaiKhoan" asp-action="DangNhap" class="d-block text-center mt-3">Quay lại đăng nhập</a>
-            </div></div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+@{ Layout="_LayoutAuth"; ViewData["Title"]="Quên mật khẩu"; }
+<div class="auth-shell"><section class="auth-visual"><div><span class="auth-kicker">Khôi phục an toàn</span><h1>Lấy lại quyền truy cập tài khoản.</h1><p>Mã xác nhận chỉ có hiệu lực trong 10 phút.</p></div></section><section class="auth-card"><a class="auth-back" asp-controller="TaiKhoan" asp-action="DangNhap"><i class="fas fa-arrow-left"></i> Quay lại đăng nhập</a><h2>Quên mật khẩu</h2><p class="text-muted">Nhập email đã đăng ký để tạo mã xác nhận.</p><form asp-action="QuenMatKhau" method="post" data-auth-form><div asp-validation-summary="ModelOnly" class="text-danger"></div><div class="mb-4"><label asp-for="Email" class="form-label"></label><div class="auth-input"><i class="fas fa-envelope"></i><input asp-for="Email" class="form-control" autocomplete="email" autofocus placeholder="ban@vidu.com"/></div><span asp-validation-for="Email" class="text-danger"></span></div><button class="btn auth-submit"><span data-submit-label>Tạo mã xác nhận</span><span class="spinner-border spinner-border-sm d-none" data-submit-spinner></span></button></form></section></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
