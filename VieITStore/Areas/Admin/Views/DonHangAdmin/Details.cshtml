@@ -1,102 +1,14 @@
 @model DonHang
-@{
-    ViewData["Title"] = $"Đơn tại quầy {Model.MaDonHang}";
-    var statusText = Model.TrangThai switch
-    {
-        TrangThaiDonHang.ChoXacNhan => "Chờ xác nhận",
-        TrangThaiDonHang.DaXacNhan => "Đã xác nhận",
-        TrangThaiDonHang.DangGiao => "Đang giao",
-        TrangThaiDonHang.DaGiao => "Đã giao",
-        TrangThaiDonHang.HoanThanh => "Hoàn thành",
-        TrangThaiDonHang.DaHuy => "Đã hủy",
-        _ => Model.TrangThai.ToString()
-    };
-    var paymentText = Model.PhuongThucThanhToan switch
-    {
-        PhuongThucThanhToan.TienMat => "Tiền mặt",
-        PhuongThucThanhToan.ChuyenKhoan => "Chuyển khoản",
-        PhuongThucThanhToan.ViDienTu => "Ví điện tử",
-        PhuongThucThanhToan.TheTinDung => "Thẻ tín dụng",
-        _ => "Thanh toán khi nhận hàng"
-    };
-}
-
-@if (TempData["Info"] != null) { <div class="alert alert-info">@TempData["Info"]</div> }
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div><h4 class="mb-1">@Model.MaDonHang</h4><span class="badge bg-primary">Tại quầy</span></div>
-    <div><a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
-        @if (Model.DaThanhToan)
-        {
-            <a asp-area="" asp-controller="HoaDon" asp-action="Create" asp-route-donHangId="@Model.Id" class="btn btn-success"><i class="fas fa-file-invoice"></i> Hóa đơn</a>
-        }
-    </div>
-</div>
-
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="card mb-4">
-            <div class="card-header"><strong>Chi tiết sản phẩm</strong></div>
-            <div class="table-responsive"><table class="table table-bordered mb-0">
-                <thead class="table-light"><tr><th>STT</th><th>Mã SP</th><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th class="text-center">Số lượng</th><th class="text-end">Thành tiền</th></tr></thead>
-                <tbody>
-                @{ var number = 1; }
-                @foreach (var item in Model.ChiTietDonHangs)
-                {
-                    <tr><td>@number</td><td>@item.SanPham?.MaSanPham</td><td>@item.SanPham?.TenSanPham</td><td class="text-end">@item.DonGia.ToString("N0") đ</td><td class="text-center">@item.SoLuong</td><td class="text-end fw-bold">@item.ThanhTien.ToString("N0") đ</td></tr>
-                    number++;
-                }
-                </tbody>
-                <tfoot><tr><td colspan="5" class="text-end fw-bold">Tổng thanh toán</td><td class="text-end fw-bold text-danger">@Model.TongThanhToan.ToString("N0") đ</td></tr></tfoot>
-            </table></div>
-        </div>
-
-        <div class="card">
-            <div class="card-header"><strong>Trạng thái đơn hàng</strong></div>
-            <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3"><span class="text-muted">Hiện tại</span><span class="badge fs-6 @(Model.TrangThai == TrangThaiDonHang.HoanThanh ? "bg-success" : Model.TrangThai == TrangThaiDonHang.DaHuy ? "bg-danger" : "bg-info text-dark")">@statusText</span></div>
-                <p><strong>Ngày tạo:</strong> @Model.NgayDat.ToString("dd/MM/yyyy HH:mm:ss")</p>
-                @if (Model.NgayThanhToan.HasValue) { <p><strong>Ngày thanh toán:</strong> @Model.NgayThanhToan.Value.ToString("dd/MM/yyyy HH:mm:ss")</p> }
-                @if (!string.IsNullOrWhiteSpace(Model.LyDoHuy)) { <div class="alert alert-danger mb-0"><strong>Lý do hủy:</strong> @Model.LyDoHuy</div> }
-
-                @if (Model.TrangThai == TrangThaiDonHang.ChoXacNhan)
-                {
-                    <form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="trangThai" value="2" /><button class="btn btn-primary">Xác nhận đơn</button></form>
-                }
-                @if (Model.TrangThai == TrangThaiDonHang.DaXacNhan || Model.TrangThai == TrangThaiDonHang.DaGiao)
-                {
-                    <form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="trangThai" value="5" /><button class="btn btn-success" onclick="return confirm('Xác nhận hoàn thành và thanh toán đơn?')">Hoàn thành</button></form>
-                }
-                @if (Model.TrangThai == TrangThaiDonHang.DangGiao)
-                {
-                    <form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="trangThai" value="4" /><button class="btn btn-success">Đánh dấu đã giao</button></form>
-                }
-                @if (Model.TrangThai is TrangThaiDonHang.ChoXacNhan or TrangThaiDonHang.DaXacNhan or TrangThaiDonHang.DangGiao)
-                {
-                    <form asp-action="CapNhatTrangThai" method="post" class="mt-3 border-top pt-3">
-                        <input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="trangThai" value="6" />
-                        <label for="lyDoHuy" class="form-label text-danger">Lý do hủy đơn</label>
-                        <div class="input-group"><input id="lyDoHuy" name="lyDoHuy" class="form-control" maxlength="500" required /><button class="btn btn-outline-danger" onclick="return confirm('Hủy đơn và hoàn lại tồn kho?')">Hủy đơn</button></div>
-                    </form>
-                }
-                @if (Model.TrangThai is TrangThaiDonHang.HoanThanh or TrangThaiDonHang.DaHuy)
-                {
-                    <div class="alert alert-secondary mb-0"><i class="fas fa-lock"></i> Đơn ở trạng thái cuối và không thể mở lại.</div>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4">
-        <div class="card mb-3"><div class="card-header"><strong>Khách hàng</strong></div><div class="card-body">
-            <p><strong>Họ tên:</strong> @Model.HoTenNguoiNhan</p><p><strong>Điện thoại:</strong> @Model.SoDienThoaiNguoiNhan</p><p class="mb-0"><strong>Email:</strong> @(Model.KhachHang?.NguoiDung?.Email ?? "Chưa cung cấp")</p>
-        </div></div>
-        <div class="card mb-3"><div class="card-header"><strong>Xử lý đơn</strong></div><div class="card-body">
-            <p><strong>Nhân viên:</strong> @(Model.NhanVienXuLy?.HoTen ?? "Chưa xác định")</p><p class="mb-0"><strong>Ghi chú:</strong> @(Model.GhiChu ?? "Không có")</p>
-        </div></div>
-        <div class="card"><div class="card-header"><strong>Thanh toán</strong></div><div class="card-body">
-            <p><strong>Hình thức nhận:</strong> @(Model.HinhThucNhanHang == HinhThucNhanHang.NhanTaiCuaHang ? "Nhận tại cửa hàng" : "Giao hàng tận nơi")</p>
-            <p><strong>Phương thức:</strong> @paymentText</p><p><strong>Trạng thái:</strong> <span class="badge @(Model.DaThanhToan ? "bg-success" : "bg-secondary")">@(Model.DaThanhToan ? "Đã thanh toán" : "Chưa thanh toán")</span></p><hr /><div class="d-flex justify-content-between fs-5 fw-bold"><span>Tổng cộng</span><span class="text-danger">@Model.TongThanhToan.ToString("N0") đ</span></div>
-        </div></div>
-    </div>
-</div>
+@{ViewData["Title"]=$"Đơn hàng {Model.MaDonHang}";var terminal=Model.TrangThai is TrangThaiDonHang.HoanThanh or TrangThaiDonHang.DaHuy;}
+@if(TempData["Info"]!=null){<div class="alert alert-info">@TempData["Info"]</div>}
+<div class="d-flex justify-content-between mb-3"><div><h4>@Model.MaDonHang</h4><span class="badge bg-primary">@Model.KenhBan</span></div><a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a></div>
+<div class="row g-3"><div class="col-lg-8"><div class="card mb-3"><div class="card-header"><strong>Sản phẩm</strong></div><div class="table-responsive"><table class="table mb-0"><thead><tr><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th class="text-end">Số lượng</th><th class="text-end">Thành tiền</th></tr></thead><tbody>@foreach(var x in Model.ChiTietDonHangs){<tr><td>@x.SanPham?.MaSanPham · @x.SanPham?.TenSanPham</td><td class="text-end">@x.DonGia.ToString("N0") đ</td><td class="text-end">@x.SoLuong</td><td class="text-end fw-bold">@x.ThanhTien.ToString("N0") đ</td></tr>}</tbody></table></div></div>
+<div class="card"><div class="card-header"><strong>Xử lý trạng thái</strong></div><div class="card-body"><div class="mb-3">Hiện tại: <span class="badge fs-6 @(terminal?"bg-secondary":"bg-info text-dark")">@DonHangAdminController.StatusText(Model.TrangThai)</span></div>
+@if(Model.TrangThai==TrangThaiDonHang.ChoXacNhan){<form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="trangThai" value="@TrangThaiDonHang.DaXacNhan"/><button class="btn btn-primary">Xác nhận đơn</button></form>}
+@if(Model.TrangThai==TrangThaiDonHang.DaXacNhan){<form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="trangThai" value="@TrangThaiDonHang.DangChuanBi"/><button class="btn btn-primary">Bắt đầu chuẩn bị</button></form>}
+@if(Model.TrangThai==TrangThaiDonHang.DangChuanBi){if(Model.HinhThucNhanHang==HinhThucNhanHang.NhanTaiCuaHang){<form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="trangThai" value="@TrangThaiDonHang.HoanThanh"/><button class="btn btn-success">Đã giao tại cửa hàng</button></form>}else{<form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="trangThai" value="@TrangThaiDonHang.DangGiao"/><button class="btn btn-primary">Bắt đầu giao</button></form>}}
+@if(Model.TrangThai==TrangThaiDonHang.DangGiao){<form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="trangThai" value="@TrangThaiDonHang.DaGiao"/><button class="btn btn-primary">Đã giao</button></form>}
+@if(Model.TrangThai==TrangThaiDonHang.DaGiao){<form asp-action="CapNhatTrangThai" method="post" class="d-inline"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="trangThai" value="@TrangThaiDonHang.HoanThanh"/><button class="btn btn-success">Hoàn thành</button></form>}
+@if(!terminal && Model.TrangThai!=TrangThaiDonHang.DaGiao){<form asp-action="CapNhatTrangThai" method="post" class="mt-3 border-top pt-3"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="trangThai" value="@TrangThaiDonHang.DaHuy"/><label class="form-label text-danger">Lý do hủy</label><div class="input-group"><input name="lyDoHuy" class="form-control" maxlength="500" required/><button class="btn btn-outline-danger" onclick="return confirm('Hủy đơn và hoàn tồn đúng một lần?')">Hủy đơn</button></div></form>}
+@if(Model.TrangThai==TrangThaiDonHang.HoanThanh){<div class="d-flex gap-2 flex-wrap"><a asp-area="" asp-controller="HoaDon" asp-action="Create" asp-route-donHangId="@Model.Id" class="btn btn-outline-primary"><i class="fas fa-file-invoice"></i> Xem hoặc lập hóa đơn</a></div>}else if(terminal){<div class="alert alert-secondary mb-0">Đơn ở trạng thái cuối và không thể mở lại.</div>}@if(Model.NgayCapNhatTrangThai.HasValue){<div class="small text-muted mt-3">Cập nhật @Model.NgayCapNhatTrangThai.Value.ToString("dd/MM/yyyy HH:mm") bởi @(Model.NguoiCapNhatTrangThai?.HoTen??"Hệ thống")</div>}</div></div></div>
+<div class="col-lg-4"><div class="card card-body mb-3"><h5>Khách hàng</h5><p><strong>@Model.HoTenNguoiNhan</strong><br/>@Model.SoDienThoaiNguoiNhan<br/>@Model.DiaChiGiaoHang</p></div><div class="card card-body"><h5>Thanh toán</h5><div class="d-flex justify-content-between"><span>Tiền hàng</span><span>@Model.TongTienHang.ToString("N0") đ</span></div><div class="d-flex justify-content-between"><span>Phí vận chuyển</span><span>@Model.PhiVanChuyen.ToString("N0") đ</span></div><div class="d-flex justify-content-between fs-5 fw-bold border-top mt-2 pt-2"><span>Tổng</span><span>@Model.TongThanhToan.ToString("N0") đ</span></div></div></div></div>
