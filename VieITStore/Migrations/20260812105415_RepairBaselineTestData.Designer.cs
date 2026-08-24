@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VieITStore.Models;
 
@@ -11,9 +12,11 @@ using VieITStore.Models;
 namespace VieITStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260812105415_RepairBaselineTestData")]
+    partial class RepairBaselineTestData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,16 +158,11 @@ namespace VieITStore.Migrations
                     b.Property<int>("KhachHangId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("NgayCapNhat")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("NgayDanhGia")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("NoiDung")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SanPhamId")
                         .HasColumnType("int");
@@ -174,10 +172,9 @@ namespace VieITStore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SanPhamId");
+                    b.HasIndex("KhachHangId");
 
-                    b.HasIndex("KhachHangId", "SanPhamId")
-                        .IsUnique();
+                    b.HasIndex("SanPhamId");
 
                     b.ToTable("DanhGias");
                 });
@@ -193,9 +190,6 @@ namespace VieITStore.Migrations
                     b.Property<bool>("HienThi")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("MaGiamGiaId")
-                        .HasColumnType("int");
-
                     b.Property<string>("MoTa")
                         .HasColumnType("nvarchar(max)");
 
@@ -207,8 +201,6 @@ namespace VieITStore.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MaGiamGiaId");
 
                     b.ToTable("DanhMucs");
 
@@ -335,9 +327,6 @@ namespace VieITStore.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
-                    b.Property<DateTime?>("NgayCapNhatTrangThai")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("NgayDat")
                         .HasColumnType("datetime2");
 
@@ -349,9 +338,6 @@ namespace VieITStore.Migrations
 
                     b.Property<DateTime?>("NgayThanhToan")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("NguoiCapNhatTrangThaiId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("NhanVienXuLyId")
                         .HasColumnType("int");
@@ -381,8 +367,6 @@ namespace VieITStore.Migrations
 
                     b.HasIndex("MaDonHang")
                         .IsUnique();
-
-                    b.HasIndex("NguoiCapNhatTrangThaiId");
 
                     b.HasIndex("NhanVienXuLyId");
 
@@ -538,98 +522,6 @@ namespace VieITStore.Migrations
                         });
                 });
 
-            modelBuilder.Entity("VieITStore.Models.Entities.MaGiamGia", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("ApDungToanBo")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("DanhMucId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("GiaGiamToiDa")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("GiaToiThieu")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("MaCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("MoTa")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("NgayBatDau")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("NgayCapNhat")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("NgayKetThuc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("NgayTao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("PhanTramGiam")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<int>("SoLanDaSuDung")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SoLuongSuDung")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TenKhuyenMai")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<bool>("TrangThai")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DanhMucId");
-
-                    b.ToTable("MaGiamGias");
-                });
-
-            modelBuilder.Entity("VieITStore.Models.Entities.Mau", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("MaMau")
-                        .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
-
-                    b.Property<DateTime>("NgayTao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("TenMau")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("TrangThai")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Maus");
-                });
-
             modelBuilder.Entity("VieITStore.Models.Entities.NguoiDung", b =>
                 {
                     b.Property<int>("Id")
@@ -639,9 +531,7 @@ namespace VieITStore.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HoTen")
                         .IsRequired()
@@ -671,9 +561,6 @@ namespace VieITStore.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
 
                     b.ToTable("NguoiDungs");
 
@@ -891,9 +778,6 @@ namespace VieITStore.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("MauId")
-                        .HasColumnType("int");
-
                     b.Property<string>("MoTaChiTiet")
                         .HasColumnType("nvarchar(max)");
 
@@ -944,8 +828,6 @@ namespace VieITStore.Migrations
                     b.HasIndex("MaVach")
                         .IsUnique()
                         .HasFilter("[MaVach] IS NOT NULL");
-
-                    b.HasIndex("MauId");
 
                     b.ToTable("SanPhams");
 
@@ -1184,25 +1066,18 @@ namespace VieITStore.Migrations
                     b.HasOne("VieITStore.Models.Entities.KhachHang", "KhachHang")
                         .WithMany("DanhGias")
                         .HasForeignKey("KhachHangId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VieITStore.Models.Entities.SanPham", "SanPham")
                         .WithMany("DanhGias")
                         .HasForeignKey("SanPhamId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("KhachHang");
 
                     b.Navigation("SanPham");
-                });
-
-            modelBuilder.Entity("VieITStore.Models.Entities.DanhMuc", b =>
-                {
-                    b.HasOne("VieITStore.Models.Entities.MaGiamGia", null)
-                        .WithMany("DanhMucs")
-                        .HasForeignKey("MaGiamGiaId");
                 });
 
             modelBuilder.Entity("VieITStore.Models.Entities.DiaChiGiaoHang", b =>
@@ -1224,18 +1099,11 @@ namespace VieITStore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VieITStore.Models.Entities.NguoiDung", "NguoiCapNhatTrangThai")
-                        .WithMany()
-                        .HasForeignKey("NguoiCapNhatTrangThaiId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("VieITStore.Models.Entities.NguoiDung", "NhanVienXuLy")
                         .WithMany()
                         .HasForeignKey("NhanVienXuLyId");
 
                     b.Navigation("KhachHang");
-
-                    b.Navigation("NguoiCapNhatTrangThai");
 
                     b.Navigation("NhanVienXuLy");
                 });
@@ -1287,15 +1155,6 @@ namespace VieITStore.Migrations
                     b.Navigation("NguoiDung");
                 });
 
-            modelBuilder.Entity("VieITStore.Models.Entities.MaGiamGia", b =>
-                {
-                    b.HasOne("VieITStore.Models.Entities.DanhMuc", "DanhMuc")
-                        .WithMany()
-                        .HasForeignKey("DanhMucId");
-
-                    b.Navigation("DanhMuc");
-                });
-
             modelBuilder.Entity("VieITStore.Models.Entities.PhieuDieuChinhTonKho", b =>
                 {
                     b.HasOne("VieITStore.Models.Entities.NguoiDung", "NguoiThucHien")
@@ -1334,13 +1193,7 @@ namespace VieITStore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VieITStore.Models.Entities.Mau", "Mau")
-                        .WithMany("SanPhams")
-                        .HasForeignKey("MauId");
-
                     b.Navigation("DanhMuc");
-
-                    b.Navigation("Mau");
                 });
 
             modelBuilder.Entity("VieITStore.Models.Entities.SerialSanPham", b =>
@@ -1402,16 +1255,6 @@ namespace VieITStore.Migrations
                     b.Navigation("DiaChiGiaoHangs");
 
                     b.Navigation("DonHangs");
-                });
-
-            modelBuilder.Entity("VieITStore.Models.Entities.MaGiamGia", b =>
-                {
-                    b.Navigation("DanhMucs");
-                });
-
-            modelBuilder.Entity("VieITStore.Models.Entities.Mau", b =>
-                {
-                    b.Navigation("SanPhams");
                 });
 
             modelBuilder.Entity("VieITStore.Models.Entities.NguoiDung", b =>

@@ -9,6 +9,8 @@ namespace VieITStore.Models
 
         public DbSet<DanhMuc> DanhMucs { get; set; }
         public DbSet<SanPham> SanPhams { get; set; }
+        public DbSet<Mau> Maus { get; set; }
+        public DbSet<MaGiamGia> MaGiamGias { get; set; }
         public DbSet<NguoiDung> NguoiDungs { get; set; }
         public DbSet<KhachHang> KhachHangs { get; set; }
         public DbSet<DiaChiGiaoHang> DiaChiGiaoHangs { get; set; }
@@ -28,6 +30,10 @@ namespace VieITStore.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<NguoiDung>()
+                .HasIndex(x => x.Email)
+                .IsUnique();
 
             modelBuilder.Entity<NhaCungCap>()
                 .HasIndex(x => x.MaNCC)
@@ -111,6 +117,28 @@ namespace VieITStore.Models
                 .HasIndex(x => x.MaDonHang)
                 .IsUnique();
 
+            modelBuilder.Entity<DonHang>()
+                .HasOne(x => x.NguoiCapNhatTrangThai)
+                .WithMany()
+                .HasForeignKey(x => x.NguoiCapNhatTrangThaiId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DanhGia>()
+                .HasIndex(x => new { x.KhachHangId, x.SanPhamId })
+                .IsUnique();
+
+            modelBuilder.Entity<DanhGia>()
+                .HasOne(x => x.KhachHang)
+                .WithMany(x => x.DanhGias)
+                .HasForeignKey(x => x.KhachHangId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DanhGia>()
+                .HasOne(x => x.SanPham)
+                .WithMany(x => x.DanhGias)
+                .HasForeignKey(x => x.SanPhamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<HoaDon>()
                 .HasIndex(h => h.DonHangId)
                 .IsUnique();
@@ -143,7 +171,7 @@ namespace VieITStore.Models
                 {
                     Id = 1,
                     TenDangNhap = "admin",
-                    MatKhauHash = "admin123", // Plain text for testing - change to BCrypt hash in production
+                    MatKhauHash = "$2a$11$JyJ7cHu9cnJSM4k/dtsifORQDaZSUWn7cuFHCeeOu4pjezwpUarqm",
                     HoTen = "Quản trị viên",
                     Email = "admin@vieitstore.com",
                     VaiTro = VaiTro.Admin,
@@ -154,7 +182,7 @@ namespace VieITStore.Models
                 {
                     Id = 2,
                     TenDangNhap = "nhanvien",
-                    MatKhauHash = "nhanvien123", // Plain text for testing
+                    MatKhauHash = "$2a$11$BC0g0F3PFYN0.wmPKGVH2eZyOT.K6tkmPZFTScnWbsqJOPl9../3y",
                     HoTen = "Nhân viên bán hàng",
                     Email = "nhanvien@vieitstore.com",
                     VaiTro = VaiTro.NhanVien,
@@ -165,7 +193,7 @@ namespace VieITStore.Models
                 {
                     Id = 3,
                     TenDangNhap = "khachhang",
-                    MatKhauHash = "khachhang123", // Plain text for testing
+                    MatKhauHash = "$2a$11$ub58BEpDCXROdMsUtf7nnui5Xj91n63eWJ16pDIvnKM2pIBdql2Mi",
                     HoTen = "Nguyễn Văn A",
                     Email = "khachhang@vieitstore.com",
                     VaiTro = VaiTro.KhachHang,
@@ -206,6 +234,7 @@ namespace VieITStore.Models
                     HinhAnh = "/images/cpu-i5.jpg",
                     SoLuongTon = 50,
                     SoLuongDaBan = 10,
+                    NoiBat = true,
                     NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 743, DateTimeKind.Local).AddTicks(5978),
                     NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 743, DateTimeKind.Local).AddTicks(5983),
                     TrangThai = true
@@ -223,6 +252,7 @@ namespace VieITStore.Models
                     HinhAnh = "/images/gpu-rtx3060.jpg",
                     SoLuongTon = 30,
                     SoLuongDaBan = 5,
+                    NoiBat = true,
                     NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3896),
                     NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3899),
                     TrangThai = true
@@ -240,6 +270,7 @@ namespace VieITStore.Models
                     HinhAnh = "/images/ssd-samsung.jpg",
                     SoLuongTon = 100,
                     SoLuongDaBan = 25,
+                    NoiBat = true,
                     NgayTao = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3908),
                     NgayCapNhat = new DateTime(2026, 8, 6, 19, 43, 59, 744, DateTimeKind.Local).AddTicks(3908),
                     TrangThai = true

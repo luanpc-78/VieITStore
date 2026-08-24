@@ -11,7 +11,8 @@ namespace VieITStore.Models.Entities
         DaGiao = 4,
         HoanThanh = 5,
         DaHuy = 6,
-        YeuCauTraHang = 7
+        YeuCauTraHang = 7,
+        DangChuanBi = 8
     }
 
     public enum PhuongThucThanhToan
@@ -72,6 +73,9 @@ namespace VieITStore.Models.Entities
         public string DiaChiGiaoHang { get; set; } = string.Empty;
         public string? GhiChu { get; set; }
         public string? LyDoHuy { get; set; }
+        public DateTime? NgayCapNhatTrangThai { get; set; }
+        public int? NguoiCapNhatTrangThaiId { get; set; }
+        public virtual NguoiDung? NguoiCapNhatTrangThai { get; set; }
 
         public int? NhanVienXuLyId { get; set; }
         public virtual NguoiDung? NhanVienXuLy { get; set; }

@@ -25,6 +25,9 @@ namespace VieITStore.Models.Entities
         public int DanhMucId { get; set; }
         public virtual DanhMuc? DanhMuc { get; set; }
 
+        public int? MauId { get; set; }
+        public virtual Mau? Mau { get; set; }
+
         public string? ThuongHieu { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]

@@ -16,8 +16,10 @@ namespace VieITStore.Models.Entities
         [Range(1, 5)]
         public int SoSao { get; set; }
 
-        public string? NoiDung { get; set; }
+        [Required, StringLength(1000, MinimumLength = 10)]
+        public string NoiDung { get; set; } = string.Empty;
         public DateTime NgayDanhGia { get; set; } = DateTime.Now;
+        public DateTime? NgayCapNhat { get; set; }
         public bool HienThi { get; set; } = true;
     }
 }

@@ -23,7 +23,8 @@ namespace VieITStore.Models.Entities
         [Required]
         public string HoTen { get; set; } = string.Empty;
 
-        public string? Email { get; set; }
+        [Required, EmailAddress, StringLength(256)]
+        public string Email { get; set; } = string.Empty;
         public string? SoDienThoai { get; set; }
         public VaiTro VaiTro { get; set; } = VaiTro.KhachHang;
         public bool TrangThai { get; set; } = true;
