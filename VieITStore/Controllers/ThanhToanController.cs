@@ -72,6 +72,13 @@ public class ThanhToanController : Controller
             RequireAddress(model.PhuongXa, nameof(model.PhuongXa), "Vui lòng nhập Phường/Xã.");
             RequireAddress(model.DiaChiChiTiet, nameof(model.DiaChiChiTiet), "Vui lòng nhập địa chỉ nhận hàng.");
         }
+        else
+        {
+            ModelState.Remove(nameof(model.TinhThanh));
+            ModelState.Remove(nameof(model.QuanHuyen));
+            ModelState.Remove(nameof(model.PhuongXa));
+            ModelState.Remove(nameof(model.DiaChiChiTiet));
+        }
 
         var customer = await _context.KhachHangs
             .Include(x => x.DiaChiGiaoHangs)

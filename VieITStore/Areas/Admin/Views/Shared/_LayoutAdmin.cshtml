@@ -40,8 +40,6 @@
                 <i class="fas fa-tachometer-alt"></i> Tổng quan</a></li>
             <li><a href="@Url.Action("Index", "DonHangAdmin", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "DonHangAdmin" ? "active" : "")">
                 <i class="fas fa-shopping-bag"></i> Đơn hàng</a></li>
-            <li><a href="@Url.Action("Index", "BanHangTaiQuay", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "BanHangTaiQuay" ? "active" : "")">
-                <i class="fas fa-cash-register"></i> Bán hàng tại quầy</a></li>
             <li><a href="@Url.Action("Index", "SanPhamAdmin", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "SanPhamAdmin" ? "active" : "")">
                 <i class="fas fa-box"></i> Sản phẩm</a></li>
             <li><a href="@Url.Action("Index", "DanhMucAdmin", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "DanhMucAdmin" ? "active" : "")">
@@ -54,8 +52,12 @@
                 <i class="fas fa-dolly"></i> Xuất/điều chỉnh kho</a></li>
             <li><a href="@Url.Action("Index", "SerialSanPham", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "SerialSanPham" ? "active" : "")">
                 <i class="fas fa-barcode"></i> Serial &amp; bảo hành</a></li>
-            <li><a href="#"><i class="fas fa-users"></i> Khách hàng</a></li>
-            <li><a href="#"><i class="fas fa-chart-bar"></i> Báo cáo</a></li>
+            <li><a asp-area="Admin" asp-controller="KhachHangAdmin" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "KhachHangAdmin" ? "active" : "")"><i class="fas fa-users"></i> Khách hàng</a></li>
+            <li><a asp-area="Admin" asp-controller="DanhGiaAdmin" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "DanhGiaAdmin" ? "active" : "")"><i class="fas fa-star"></i> Đánh giá</a></li>
+            @if (Context.Session.GetString("VaiTro") == VaiTro.Admin.ToString())
+            {
+                <li><a asp-area="Admin" asp-controller="BaoCao" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "BaoCao" ? "active" : "")"><i class="fas fa-chart-bar"></i> Báo cáo</a></li>
+            }
             <li class="mt-4 pt-4 border-top border-secondary"><a href="/"><i class="fas fa-store"></i> Về cửa hàng</a></li>
             <li><a href="@Url.Action("DangXuat", "TaiKhoan", new { area = "" })"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
         </ul>
@@ -68,7 +70,7 @@
             </button>
             <h5 class="mb-0">@ViewData["Title"]</h5>
             <div>
-                <span class="text-muted"><i class="fas fa-user-circle"></i> @Context.Session.GetString("UserName")</span>
+                <span class="text-muted"><i class="fas fa-user-circle"></i> @Context.Session.GetString("HoTen")</span>
                 <span class="badge bg-primary ms-2">@Context.Session.GetString("VaiTro")</span>
             </div>
         </div>

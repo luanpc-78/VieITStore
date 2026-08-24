@@ -10,6 +10,10 @@
     </div>
     <div class="card-body">
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            }
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="NgayTao" />
 
@@ -48,18 +52,54 @@
                         </div>
                     </div>
 
+                    <div class="row align-items-end">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="MauId" class="form-label">Màu sắc</label>
+                            <select asp-for="MauId" asp-items="ViewBag.Maus" class="form-select">
+                                <option value="">-- Không chọn màu --</option>
+                            </select>
+                            <span asp-validation-for="MauId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label for="tenMauMoi" class="form-label">Hoặc thêm màu mới</label>
+                            <input id="tenMauMoi" name="tenMauMoi" value="@ViewBag.TenMauMoi" class="form-control" placeholder="VD: Xanh navy">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="maMauMoi" class="form-label">Mã màu</label>
+                            <input id="maMauMoi" name="maMauMoi" type="color" value="@(ViewBag.MaMauMoi ?? "#000000")" class="form-control form-control-color w-100" title="Chọn màu mới">
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label asp-for="GiaNhap" class="form-label"></label>
-                            <input asp-for="GiaNhap" type="number" class="form-control" step="0.01" required>
+                            <input asp-for="GiaNhap" type="hidden" id="GiaNhapValue">
+                            <div class="input-group">
+                                <input id="GiaNhap" type="text" class="form-control text-end" inputmode="numeric"
+                                       data-currency-input data-currency-target="GiaNhapValue"
+                                       aria-label="Giá nhập" autocomplete="off" required>
+                                <span class="input-group-text">đ</span>
+                            </div>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label asp-for="GiaBan" class="form-label"></label>
-                            <input asp-for="GiaBan" type="number" class="form-control" step="0.01" required>
+                            <input asp-for="GiaBan" type="hidden" id="GiaBanValue">
+                            <div class="input-group">
+                                <input id="GiaBan" type="text" class="form-control text-end" inputmode="numeric"
+                                       data-currency-input data-currency-target="GiaBanValue"
+                                       aria-label="Giá bán" autocomplete="off" required>
+                                <span class="input-group-text">đ</span>
+                            </div>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label asp-for="GiaKhuyenMai" class="form-label"></label>
-                            <input asp-for="GiaKhuyenMai" type="number" class="form-control" step="0.01" placeholder="Để trống nếu không KM">
+                            <input asp-for="GiaKhuyenMai" type="hidden" id="GiaKhuyenMaiValue">
+                            <div class="input-group">
+                                <input id="GiaKhuyenMai" type="text" class="form-control text-end" inputmode="numeric"
+                                       data-currency-input data-currency-target="GiaKhuyenMaiValue"
+                                       aria-label="Giá giảm" autocomplete="off" placeholder="Để trống nếu không KM">
+                                <span class="input-group-text">đ</span>
+                            </div>
                         </div>
 
                     </div>
@@ -143,6 +183,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/currency-input.js" asp-append-version="true"></script>
 
     <script>
         document.getElementById('hinhAnh').addEventListener('change', function (e) {

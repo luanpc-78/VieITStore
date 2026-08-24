@@ -1,144 +1,54 @@
-﻿@model List<VieITStore.Models.Entities.SanPham>
-@{
-    ViewData["Title"] = "Trang chủ";
-    var sanPhamMoi = ViewBag.SanPhamMoi as List<VieITStore.Models.Entities.SanPham>;
-}
+@model HomeVM
+@{ ViewData["Title"] = "Trang chủ"; }
 
-<!-- Hero Section -->
-<div class="bg-dark text-white py-5 mb-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="display-4 fw-bold">Linh kiện điện tử <span class="text-warning">chính hãng</span></h1>
-                <p class="lead">CPU, VGA, RAM, SSD, phụ kiện máy tính & điện thoại</p>
-                <a href="@Url.Action("Index", "SanPham")" class="btn btn-warning btn-lg px-4">
-                    <i class="fas fa-shopping-bag"></i> Mua ngay
-                </a>
+<section class="store-hero">
+    <div class="container store-container">
+        <div class="row hero-inner align-items-center">
+            <div class="col-lg-7">
+                <span class="hero-eyebrow"><i class="fas fa-bolt" aria-hidden="true"></i> Công nghệ chính hãng, giá minh bạch</span>
+                <h1 class="hero-title">Nâng cấp trải nghiệm số cùng <em>VieITStore</em></h1>
+                <p class="hero-copy">Khám phá linh kiện máy tính, phụ kiện điện thoại và thiết bị công nghệ được tuyển chọn kỹ, bảo hành rõ ràng và giao hàng nhanh chóng.</p>
+                <div class="hero-actions"><a asp-controller="SanPham" asp-action="Index" class="btn btn-warning btn-lg"><i class="fas fa-shopping-bag me-2" aria-hidden="true"></i>Mua ngay</a><a href="#featured" class="btn btn-outline-light btn-lg">Xem nổi bật</a></div>
+                <ul class="hero-benefits"><li><i class="fas fa-circle-check" aria-hidden="true"></i>Hàng chính hãng</li><li><i class="fas fa-shield-halved" aria-hidden="true"></i>Bảo hành uy tín</li><li><i class="fas fa-truck-fast" aria-hidden="true"></i>Giao hàng toàn quốc</li></ul>
             </div>
-            <div class="col-md-6 text-center">
-                <i class="fas fa-microchip fa-10x text-secondary opacity-25"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Sản phẩm nổi bật -->
-<div class="container mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3><i class="fas fa-fire text-danger"></i> Sản phẩm nổi bật</h3>
-        <a href="@Url.Action("Index", "SanPham")" class="text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
-    </div>
-    <div class="row g-4">
-        @foreach (var sp in Model)
-        {
-            <div class="col-md-3 col-sm-6">
-                <div class="card product-card h-100">
-                    <div class="position-relative">
-                        @if (sp.GiaKhuyenMai.HasValue)
+            <div class="col-lg-5">
+                <div class="hero-product-showcase" data-hero-showcase data-slide-count="@Model.SanPhamDeXuat.Count">
+                    <p class="visually-hidden">VieITStore cam kết bảo hành rõ ràng, sản phẩm chính hãng, giá bán minh bạch, giao hàng nhanh chóng, đổi trả thuận tiện và hỗ trợ tận tâm.</p>
+                    <div class="hero-message-rotator" aria-hidden="true"><span class="hero-message"><i class="fas fa-shield-alt" aria-hidden="true"></i><span data-message-text>Bảo hành rõ ràng</span></span></div>
+                    <div class="hero-product-carousel">
+                        @if (Model.SanPhamDeXuat.Any())
                         {
-                            <span class="badge badge-sale position-absolute top-0 start-0 m-2">-@Math.Round((1 - sp.GiaKhuyenMai.Value / sp.GiaBan) * 100)%</span>
+                            @for (var i = 0; i < Model.SanPhamDeXuat.Count; i++)
+                            {
+                                var sp = Model.SanPhamDeXuat[i];
+                                var image = string.IsNullOrWhiteSpace(sp.HinhAnh) ? "/images/no-image.svg" : sp.HinhAnh;
+                                <article class="product-slide @(i == 0 ? "is-active" : "")" data-slide-index="@i" aria-hidden="@(i == 0 ? "false" : "true")">
+                                    <a asp-controller="SanPham" asp-action="ChiTiet" asp-route-id="@sp.Id" class="hero-product-visual" tabindex="@(i == 0 ? "0" : "-1")" aria-label="Xem chi tiết @sp.TenSanPham" title="@sp.TenSanPham">
+                                        <img src="@image" alt="@sp.TenSanPham" onerror="this.onerror=null;this.src='/images/no-image.svg';" />
+                                    </a>
+                                </article>
+                            }
                         }
-                        <img src="@(sp.HinhAnh ?? "/images/no-image.jpg")" class="card-img-top product-img" alt="@sp.TenSanPham">
+                        else
+                        {
+                            <article class="product-slide is-active hero-fallback"><img src="/images/no-image.svg" alt="Sản phẩm VieITStore đang cập nhật" /></article>
+                        }
                     </div>
-                    <div class="card-body d-flex flex-column">
-                        <small class="text-muted">@sp.DanhMuc?.TenDanhMuc</small>
-                        <h6 class="card-title mt-1">@sp.TenSanPham</h6>
-                        <div class="mt-auto">
-                            @if (sp.GiaKhuyenMai.HasValue)
-                            {
-                                <span class="old-price">@sp.GiaBan.ToString("N0") đ</span>
-                                <div class="price">@sp.GiaKhuyenMai.Value.ToString("N0") đ</div>
-                            }
-                            else
-                            {
-                                <div class="price">@sp.GiaBan.ToString("N0") đ</div>
-                            }
-                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                <small class="text-success"><i class="fas fa-check-circle"></i> Còn hàng</small>
-                                <button class="btn btn-primary btn-sm" onclick="addToCart(@sp.Id)">
-                                    <i class="fas fa-cart-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    @if (Model.SanPhamDeXuat.Count > 1)
+                    {
+                        <div class="hero-carousel-controls"><button type="button" class="hero-carousel-arrow" data-carousel-prev aria-label="Sản phẩm trước"><i class="fas fa-chevron-left" aria-hidden="true"></i></button><div class="hero-carousel-dots" role="group" aria-label="Chọn sản phẩm đề xuất">@for(var i=0;i<Model.SanPhamDeXuat.Count;i++){<button type="button" class="hero-carousel-dot @(i==0?"is-active":"")" data-carousel-dot="@i" aria-label="Xem sản phẩm @(i+1)" aria-current="@(i==0?"true":"false")"></button>}</div><button type="button" class="hero-carousel-arrow" data-carousel-next aria-label="Sản phẩm tiếp theo"><i class="fas fa-chevron-right" aria-hidden="true"></i></button></div>
+                    }
                 </div>
             </div>
-        }
+        </div>
     </div>
-</div>
+</section>
 
-<!-- Sản phẩm mới -->
-<div class="container mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3><i class="fas fa-star text-warning"></i> Sản phẩm mới</h3>
-    </div>
-    <div class="row g-4">
-        @foreach (var sp in sanPhamMoi ?? new List<VieITStore.Models.Entities.SanPham>())
-        {
-            <div class="col-md-3 col-sm-6">
-                <div class="card product-card h-100">
-                    <span class="badge bg-success position-absolute top-0 end-0 m-2">Mới</span>
-                    <img src="@(sp.HinhAnh ?? "/images/no-image.jpg")" class="card-img-top product-img" alt="@sp.TenSanPham">
-                    <div class="card-body d-flex flex-column">
-                        <small class="text-muted">@sp.DanhMuc?.TenDanhMuc</small>
-                        <h6 class="card-title mt-1">@sp.TenSanPham</h6>
-                        <div class="mt-auto">
-                            <div class="price">@sp.GiaBan.ToString("N0") đ</div>
-                            <button class="btn btn-outline-primary btn-sm w-100 mt-2" onclick="addToCart(@sp.Id)">
-                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-</div>
-
-<!-- Cam kết -->
-<div class="container mb-5">
-    <div class="row g-4 text-center">
-        <div class="col-md-3">
-            <div class="p-4 bg-white rounded shadow-sm">
-                <i class="fas fa-truck fa-2x text-primary mb-2"></i>
-                <h6>Giao hàng toàn quốc</h6>
-                <small class="text-muted">1-3 ngày</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="p-4 bg-white rounded shadow-sm">
-                <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
-                <h6>Bảo hành chính hãng</h6>
-                <small class="text-muted">Đổi trả 7 ngày</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="p-4 bg-white rounded shadow-sm">
-                <i class="fas fa-tag fa-2x text-warning mb-2"></i>
-                <h6>Giá cả cạnh tranh</h6>
-                <small class="text-muted">Luôn khuyến mãi</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="p-4 bg-white rounded shadow-sm">
-                <i class="fas fa-headset fa-2x text-info mb-2"></i>
-                <h6>Hỗ trợ 24/7</h6>
-                <small class="text-muted">Hotline: 1900 1234</small>
-            </div>
-        </div>
-    </div>
-</div>
+<section id="featured" class="store-section"><div class="container store-container"><div class="section-heading"><div><div class="section-kicker">Được quan tâm</div><h2 class="section-title">Sản phẩm nổi bật</h2></div><a asp-controller="SanPham" asp-action="Index" class="section-link">Xem tất cả <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></a></div><div class="product-grid">@foreach(var sp in Model.SanPhamNoiBat){@await Html.PartialAsync("_ProductCard",sp,new ViewDataDictionary(ViewData){{"Badge","Nổi bật"}})}</div></div></section>
+<section class="store-section"><div class="container store-container"><div class="section-heading"><div><div class="section-kicker">Vừa cập nhật</div><h2 class="section-title">Sản phẩm mới</h2></div></div><div class="product-grid">@foreach(var sp in Model.SanPhamMoi){@await Html.PartialAsync("_ProductCard",sp,new ViewDataDictionary(ViewData){{"Badge","Mới"}})}</div></div></section>
+<section class="store-section pt-0"><div class="container store-container"><div class="row g-3"><div class="col-sm-6 col-lg-3"><div class="benefit-card"><div class="benefit-icon"><i class="fas fa-truck-fast"></i></div><h3 class="h6 fw-bold">Giao hàng toàn quốc</h3><p class="small text-muted mb-0">Nhận hàng nhanh chóng, theo dõi rõ ràng.</p></div></div><div class="col-sm-6 col-lg-3"><div class="benefit-card"><div class="benefit-icon"><i class="fas fa-shield-halved"></i></div><h3 class="h6 fw-bold">Bảo hành chính hãng</h3><p class="small text-muted mb-0">Chính sách minh bạch theo từng sản phẩm.</p></div></div><div class="col-sm-6 col-lg-3"><div class="benefit-card"><div class="benefit-icon"><i class="fas fa-tags"></i></div><h3 class="h6 fw-bold">Giá cạnh tranh</h3><p class="small text-muted mb-0">Nhiều lựa chọn phù hợp mọi nhu cầu.</p></div></div><div class="col-sm-6 col-lg-3"><div class="benefit-card"><div class="benefit-icon"><i class="fas fa-headset"></i></div><h3 class="h6 fw-bold">Tư vấn tận tâm</h3><p class="small text-muted mb-0">Hỗ trợ chọn đúng sản phẩm cần thiết.</p></div></div></div></div></section>
 
 @section Scripts {
-    <div id="cartAntiForgery" class="d-none">@Html.AntiForgeryToken()</div>
-    <script>
-        function addToCart(sanPhamId) {
-            $.post('@Url.Action("ThemVaoGio", "GioHang")', { sanPhamId: sanPhamId, soLuong: 1, __RequestVerificationToken: $('#cartAntiForgery input').val() }, function (data) {
-                if (data.success) {
-                    updateCartCount();
-                    alert(data.message);
-                }
-            }).fail(function (xhr) { alert(xhr.responseJSON?.message || 'Không thể thêm sản phẩm vào giỏ.'); });
-        }
-    </script>
+<div id="cartAntiForgery" class="d-none">@Html.AntiForgeryToken()</div>
+<script>function addToCart(sanPhamId,button){setCartButtonLoading(button,true);$.post('@Url.Action("ThemVaoGio","GioHang")',{sanPhamId,soLuong:1,__RequestVerificationToken:$('#cartAntiForgery input').val()}).done(function(data){if(data.success){updateCartCount();showStoreToast(data.message)}else showStoreToast(data.message||'Không thể thêm sản phẩm.','danger')}).fail(function(xhr){showStoreToast(xhr.responseJSON?.message||'Không thể thêm sản phẩm vào giỏ.','danger')}).always(function(){setCartButtonLoading(button,false)})}</script>
 }

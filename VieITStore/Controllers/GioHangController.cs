@@ -152,6 +152,15 @@ public class GioHangController : Controller
             : x.NguoiDungId == null && x.SessionId == sessionId);
     }
 
-    private string GetSessionId() => HttpContext.Session.Id;
+    private string GetSessionId()
+    {
+        // Đọc Session.Id không tự phát hành cookie cho khách. Ghi một marker để
+        // cùng một giỏ được nhận diện ổn định ở các request tiếp theo.
+        const string cartSessionKey = "CartSessionInitialized";
+        if (!HttpContext.Session.TryGetValue(cartSessionKey, out _))
+            HttpContext.Session.SetString(cartSessionKey, "1");
+
+        return HttpContext.Session.Id;
+    }
     private int? GetUserId() => HttpContext.Session.GetInt32("UserId");
 }

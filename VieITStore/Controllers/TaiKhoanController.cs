@@ -20,6 +20,8 @@ namespace VieITStore.Controllers
         [HttpGet]
         public IActionResult DangNhap(string? returnUrl = null)
         {
+            if (HttpContext.Session.GetInt32("UserId").HasValue)
+                return RedirectToAction("Index", "Home");
             try
             {
                 ViewBag.ReturnUrl = returnUrl;
@@ -40,12 +42,13 @@ namespace VieITStore.Controllers
             {
                 if (!ModelState.IsValid) return View(model);
 
+                var normalizedEmail = model.Email.Trim().ToLowerInvariant();
                 var user = await _context.NguoiDungs
-                    .FirstOrDefaultAsync(u => u.TenDangNhap == model.TenDangNhap && u.TrangThai);
+                    .FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail && u.TrangThai);
 
                 if (user == null)
                 {
-                    ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng!");
+                    ModelState.AddModelError("", "Email hoặc mật khẩu không đúng.");
                     return View(model);
                 }
 
@@ -64,12 +67,13 @@ namespace VieITStore.Controllers
 
                 if (!passwordValid)
                 {
-                    ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng!");
+                    ModelState.AddModelError("", "Email hoặc mật khẩu không đúng.");
                     return View(model);
                 }
 
                 HttpContext.Session.SetInt32("UserId", user.Id);
-                HttpContext.Session.SetString("UserName", user.HoTen);
+                HttpContext.Session.SetString("Email", user.Email);
+                HttpContext.Session.SetString("HoTen", user.HoTen);
                 HttpContext.Session.SetString("VaiTro", user.VaiTro.ToString());
 
                 await MergeSessionCart(user.Id, HttpContext.Session.Id);
@@ -86,7 +90,7 @@ namespace VieITStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in DangNhap POST");
-                ModelState.AddModelError("", "Có lỗi xảy ra: " + ex.Message);
+                ModelState.AddModelError("", "Không thể đăng nhập lúc này. Vui lòng thử lại.");
                 return View(model);
             }
         }
@@ -132,6 +136,8 @@ namespace VieITStore.Controllers
         [HttpGet]
         public IActionResult DangKy()
         {
+            if (HttpContext.Session.GetInt32("UserId").HasValue)
+                return RedirectToAction("Index", "Home");
             try
             {
                 return View();
@@ -151,13 +157,8 @@ namespace VieITStore.Controllers
             {
                 if (!ModelState.IsValid) return View(model);
 
-                if (await _context.NguoiDungs.AnyAsync(u => u.TenDangNhap == model.TenDangNhap))
-                {
-                    ModelState.AddModelError("TenDangNhap", "Tên đăng nhập đã tồn tại!");
-                    return View(model);
-                }
-
-                if (await _context.NguoiDungs.AnyAsync(u => u.Email == model.Email))
+                var normalizedEmail = model.Email.Trim().ToLowerInvariant();
+                if (await _context.NguoiDungs.AnyAsync(u => u.Email.ToLower() == normalizedEmail))
                 {
                     ModelState.AddModelError("Email", "Email đã được sử dụng!");
                     return View(model);
@@ -165,11 +166,12 @@ namespace VieITStore.Controllers
 
                 var user = new NguoiDung
                 {
-                    TenDangNhap = model.TenDangNhap,
+                    // Cột cũ được đồng bộ nội bộ để tương thích dữ liệu/migration lịch sử.
+                    TenDangNhap = normalizedEmail,
                     MatKhauHash = BCrypt.Net.BCrypt.HashPassword(model.MatKhau),
-                    HoTen = model.HoTen,
-                    Email = model.Email,
-                    SoDienThoai = model.SoDienThoai,
+                    HoTen = model.HoTen.Trim(),
+                    Email = normalizedEmail,
+                    SoDienThoai = model.SoDienThoai.Trim().Replace(" ", string.Empty),
                     VaiTro = VaiTro.KhachHang
                 };
 
@@ -189,7 +191,7 @@ namespace VieITStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in DangKy POST");
-                ModelState.AddModelError("", "Có lỗi xảy ra: " + ex.Message);
+                ModelState.AddModelError("", "Không thể đăng ký lúc này. Vui lòng thử lại.");
                 return View(model);
             }
         }

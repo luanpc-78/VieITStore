@@ -45,15 +45,13 @@
                     </div>
                 }
 
-                @if (gallery.Length < 5)
-                {
-                    <form asp-action="ThemAnh" method="post" enctype="multipart/form-data">
+                <form asp-action="ThemAnh" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="alert alert-info py-2">Ảnh đầu tiên sẽ là ảnh đại diện; các ảnh còn lại được lưu vào thư viện ảnh bổ sung.</div>
                         <label for="galleryFiles" class="form-label">Thêm ảnh (tối đa 5 ảnh, mỗi ảnh không quá 5 MB)</label>
                         <input id="galleryFiles" type="file" name="hinhAnhBoSung" class="form-control" accept=".jpg,.jpeg,.png,.gif,.webp" multiple required />
                         <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-upload"></i> Tải ảnh lên</button>
-                    </form>
-                }
+                </form>
             </div>
         </div>
     </div>

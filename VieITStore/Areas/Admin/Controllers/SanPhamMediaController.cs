@@ -62,25 +62,33 @@ public class SanPhamMediaController : Controller
         if (product == null) return NotFound();
 
         var images = ParseImages(product.HinhAnhBoSung);
-        var initialImageCount = images.Count;
         var availableSlots = 5 - images.Count;
-        if (availableSlots <= 0)
+        if (availableSlots <= 0 && (hinhAnhBoSung?.Count ?? 0) == 0)
         {
             TempData["Error"] = "Sản phẩm đã có tối đa 5 ảnh bổ sung.";
             return RedirectToAction(nameof(Index), new { id });
         }
 
-        foreach (var file in (hinhAnhBoSung ?? []).Take(availableSlots))
+        var uploadedPaths = new List<string>();
+        // Ảnh hợp lệ đầu tiên là ảnh đại diện; các ảnh còn lại mới chiếm chỗ trong thư viện.
+        foreach (var file in (hinhAnhBoSung ?? []).Take(Math.Max(1, availableSlots + 1)))
         {
             var path = await SaveUploadedFile(file);
-            if (path != null) images.Add(path);
+            if (path != null)
+                uploadedPaths.Add(path);
+        }
+
+        if (uploadedPaths.Count > 0)
+        {
+            product.HinhAnh = uploadedPaths[0];
+            images.AddRange(uploadedPaths.Skip(1));
         }
 
         product.HinhAnhBoSung = images.Count == 0 ? null : string.Join('|', images);
         product.NgayCapNhat = DateTime.Now;
         await _context.SaveChangesAsync();
 
-        var addedImage = images.Count > initialImageCount;
+        var addedImage = uploadedPaths.Count > 0;
         TempData[addedImage ? "Success" : "Error"] = addedImage
             ? "Đã cập nhật thư viện ảnh sản phẩm."
             : "Không có ảnh hợp lệ để tải lên.";

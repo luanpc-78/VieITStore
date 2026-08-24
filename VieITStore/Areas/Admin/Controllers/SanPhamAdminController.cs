@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text.RegularExpressions;
 using VieITStore.Models;
 using VieITStore.Models.Entities;
 using VieITStore.Filters;
@@ -75,6 +77,7 @@ namespace VieITStore.Areas.Admin.Controllers
             {
                 var sanPhams = await _context.SanPhams
                     .Include(s => s.DanhMuc)
+                    .Include(s => s.Mau)
                     .OrderByDescending(s => s.NgayTao)
                     .ToListAsync();
 
@@ -91,7 +94,7 @@ namespace VieITStore.Areas.Admin.Controllers
         {
             try
             {
-                ViewBag.DanhMucs = await _context.DanhMucs.ToListAsync();
+                await LoadFormSelections();
                 return View();
             }
             catch (Exception ex)
@@ -104,9 +107,11 @@ namespace VieITStore.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("MaSanPham,MaVach,TenSanPham,DanhMucId,ThuongHieu,GiaNhap,GiaBan,GiaKhuyenMai,SoLuongTon,BaoHanh,XuatXu,MoTaNgan,MoTaChiTiet,NoiBat,TrangThai")]
+            [Bind("MaSanPham,MaVach,TenSanPham,DanhMucId,MauId,ThuongHieu,GiaNhap,GiaBan,GiaKhuyenMai,SoLuongTon,BaoHanh,XuatXu,MoTaNgan,MoTaChiTiet,NoiBat,TrangThai")]
             SanPham sanPham,
-            IFormFile? hinhAnh)
+            IFormFile? hinhAnh,
+            string? tenMauMoi,
+            string? maMauMoi)
         {
             try
             {
@@ -116,6 +121,7 @@ namespace VieITStore.Areas.Admin.Controllers
                     ModelState.AddModelError(nameof(sanPham.MaSanPham), "Mã sản phẩm đã tồn tại.");
                 if (sanPham.MaVach != null && await _context.SanPhams.AnyAsync(x => x.MaVach == sanPham.MaVach))
                     ModelState.AddModelError(nameof(sanPham.MaVach), "Mã vạch đã tồn tại.");
+                await ResolveColor(sanPham, tenMauMoi, maMauMoi);
 
                 // Log ModelState errors
                 if (!ModelState.IsValid)
@@ -157,14 +163,16 @@ namespace VieITStore.Areas.Admin.Controllers
                 }
 
                 // Nếu validation fail, trả về form với lỗi
-                ViewBag.DanhMucs = await _context.DanhMucs.ToListAsync();
+                ViewBag.TenMauMoi = tenMauMoi;
+                ViewBag.MaMauMoi = maMauMoi;
+                await LoadFormSelections(sanPham.MauId);
                 return View(sanPham);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in Create POST");
                 ModelState.AddModelError("", $"Lỗi: {ex.Message}");
-                ViewBag.DanhMucs = await _context.DanhMucs.ToListAsync();
+                await LoadFormSelections(sanPham.MauId);
                 return View(sanPham);
             }
         }
@@ -176,7 +184,7 @@ namespace VieITStore.Areas.Admin.Controllers
                 if (id == null) return NotFound();
                 var sanPham = await _context.SanPhams.FindAsync(id);
                 if (sanPham == null) return NotFound();
-                ViewBag.DanhMucs = await _context.DanhMucs.ToListAsync();
+                await LoadFormSelections(sanPham.MauId);
                 return View(sanPham);
             }
             catch (Exception ex)
@@ -190,9 +198,11 @@ namespace VieITStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,MaSanPham,MaVach,TenSanPham,DanhMucId,ThuongHieu,GiaNhap,GiaBan,GiaKhuyenMai,SoLuongTon,BaoHanh,XuatXu,MoTaNgan,MoTaChiTiet,NoiBat,TrangThai")]
+            [Bind("Id,MaSanPham,MaVach,TenSanPham,DanhMucId,MauId,ThuongHieu,GiaNhap,GiaBan,GiaKhuyenMai,SoLuongTon,BaoHanh,XuatXu,MoTaNgan,MoTaChiTiet,NoiBat,TrangThai")]
             SanPham sanPham,
-            IFormFile? hinhAnh)
+            IFormFile? hinhAnh,
+            string? tenMauMoi,
+            string? maMauMoi)
         {
             try
             {
@@ -203,6 +213,7 @@ namespace VieITStore.Areas.Admin.Controllers
                     ModelState.AddModelError(nameof(sanPham.MaSanPham), "Mã sản phẩm đã tồn tại.");
                 if (sanPham.MaVach != null && await _context.SanPhams.AnyAsync(x => x.Id != id && x.MaVach == sanPham.MaVach))
                     ModelState.AddModelError(nameof(sanPham.MaVach), "Mã vạch đã tồn tại.");
+                await ResolveColor(sanPham, tenMauMoi, maMauMoi);
 
                 if (!ModelState.IsValid)
                 {
@@ -249,6 +260,8 @@ namespace VieITStore.Areas.Admin.Controllers
                     existing.MaVach = sanPham.MaVach;
                     existing.TenSanPham = sanPham.TenSanPham;
                     existing.DanhMucId = sanPham.DanhMucId;
+                    existing.MauId = sanPham.MauId;
+                    existing.Mau = sanPham.Mau;
                     existing.GiaNhap = sanPham.GiaNhap;
                     existing.GiaBan = sanPham.GiaBan;
                     existing.GiaKhuyenMai = sanPham.GiaKhuyenMai;
@@ -270,14 +283,16 @@ namespace VieITStore.Areas.Admin.Controllers
                     return RedirectToAction("Index");
                 }
 
-                ViewBag.DanhMucs = await _context.DanhMucs.ToListAsync();
+                ViewBag.TenMauMoi = tenMauMoi;
+                ViewBag.MaMauMoi = maMauMoi;
+                await LoadFormSelections(sanPham.MauId);
                 return View(sanPham);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in Edit POST");
                 ModelState.AddModelError("", $"Lỗi: {ex.Message}");
-                ViewBag.DanhMucs = await _context.DanhMucs.ToListAsync();
+                await LoadFormSelections(sanPham.MauId);
                 return View(sanPham);
             }
         }
@@ -303,6 +318,48 @@ namespace VieITStore.Areas.Admin.Controllers
                 TempData["Error"] = $"Không thể ngừng bán sản phẩm: {ex.Message}";
                 return RedirectToAction("Index");
             }
+        }
+
+        private async Task LoadFormSelections(int? selectedColorId = null)
+        {
+            ViewBag.DanhMucs = await _context.DanhMucs.OrderBy(x => x.TenDanhMuc).ToListAsync();
+            ViewBag.Maus = new SelectList(
+                await _context.Maus.AsNoTracking().Where(x => x.TrangThai).OrderBy(x => x.TenMau).ToListAsync(),
+                "Id", "TenMau", selectedColorId);
+        }
+
+        private async Task ResolveColor(SanPham sanPham, string? tenMauMoi, string? maMauMoi)
+        {
+            if (sanPham.MauId.HasValue)
+            {
+                if (!await _context.Maus.AnyAsync(x => x.Id == sanPham.MauId && x.TrangThai))
+                    ModelState.AddModelError(nameof(sanPham.MauId), "Màu đã chọn không tồn tại hoặc đã ngừng sử dụng.");
+                return;
+            }
+
+            tenMauMoi = tenMauMoi?.Trim();
+            maMauMoi = string.IsNullOrWhiteSpace(maMauMoi) ? null : maMauMoi.Trim().ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(tenMauMoi)) return;
+
+            if (tenMauMoi.Length > 50)
+            {
+                ModelState.AddModelError(string.Empty, "Tên màu mới không được vượt quá 50 ký tự.");
+                return;
+            }
+            if (maMauMoi != null && !Regex.IsMatch(maMauMoi, "^#[0-9A-F]{6}$"))
+            {
+                ModelState.AddModelError(string.Empty, "Mã màu mới phải có dạng HEX, ví dụ #FF5733.");
+                return;
+            }
+
+            var existingColor = await _context.Maus.FirstOrDefaultAsync(x => x.TenMau == tenMauMoi);
+            if (existingColor != null)
+            {
+                sanPham.MauId = existingColor.Id;
+                return;
+            }
+
+            sanPham.Mau = new Mau { TenMau = tenMauMoi, MaMau = maMauMoi, TrangThai = true };
         }
     }
 }

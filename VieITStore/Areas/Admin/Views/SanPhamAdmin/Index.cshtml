@@ -17,6 +17,7 @@
                     <th>Mã SP</th>
                     <th>Tên sản phẩm</th>
                     <th>Danh mục</th>
+                    <th>Màu sắc</th>
                     <th class="text-end">Giá nhập</th>
                     <th class="text-end">Giá bán</th>
                     <th class="text-center">Tồn</th>
@@ -37,6 +38,19 @@
                             <small class="text-muted">@sp.ThuongHieu</small>
                         </td>
                         <td>@sp.DanhMuc?.TenDanhMuc</td>
+                        <td>
+                            @if (sp.Mau != null)
+                            {
+                                <span class="d-inline-flex align-items-center gap-2">
+                                    <span class="rounded-circle border" style="width:18px;height:18px;background:@(sp.Mau.MaMau ?? "transparent")"></span>
+                                    @sp.Mau.TenMau
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
                         <td class="text-end">@sp.GiaNhap.ToString("N0") đ</td>
                         <td class="text-end fw-bold text-primary">@sp.GiaBan.ToString("N0") đ</td>
                         <td class="text-center">
