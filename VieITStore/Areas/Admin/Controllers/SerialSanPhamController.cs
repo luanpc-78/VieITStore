@@ -210,18 +210,29 @@ public class SerialSanPhamController : Controller
     {
         var selectedReceiptDetailId = model?.ChiTietPhieuNhapId;
         var selectedOrderDetailId = model?.ChiTietDonHangId;
-        ViewBag.SanPhams = new SelectList(await _context.SanPhams.AsNoTracking().OrderBy(x => x.TenSanPham).ToListAsync(), "Id", "TenSanPham", model?.SanPhamId);
-        ViewBag.PhieuNhaps = await _context.ChiTietPhieuNhaps.AsNoTracking()
-            .Include(x => x.PhieuNhap).Include(x => x.SanPham)
-            .OrderByDescending(x => x.PhieuNhap!.NgayNhap)
-            .Select(x => new SelectListItem($"{x.PhieuNhap!.MaPhieuNhap} - {x.SanPham!.MaSanPham} ({x.SoLuong})", x.Id.ToString(), x.Id == selectedReceiptDetailId))
+        var selectedProductId = model?.SanPhamId;
+        ViewBag.SanPhams = await _context.SanPhams.AsNoTracking()
+            .Where(x => x.TrangThai || x.Id == selectedProductId)
+            .OrderBy(x => x.TenSanPham)
+            .Select(x => new SelectListItem($"{x.MaSanPham} - {x.TenSanPham}", x.Id.ToString(), x.Id == selectedProductId))
             .ToListAsync();
-        ViewBag.DonHangs = await _context.ChiTietDonHangs.AsNoTracking()
-            .Include(x => x.DonHang).Include(x => x.SanPham)
+
+        var receiptDetails = await _context.ChiTietPhieuNhaps.AsNoTracking()
+            .Include(x => x.PhieuNhap).Include(x => x.SanPham).Include(x => x.SerialSanPhams)
+            .OrderByDescending(x => x.PhieuNhap!.NgayNhap)
+            .ToListAsync();
+        ViewBag.PhieuNhaps = receiptDetails.Select(x =>
+            new SelectListItem($"{x.PhieuNhap!.MaPhieuNhap} - {x.SanPham!.MaSanPham} ({x.SerialSanPhams.Count}/{x.SoLuong} serial)", x.Id.ToString(), x.Id == selectedReceiptDetailId)).ToList();
+        ViewBag.PhieuNhapSanPhamIds = receiptDetails.ToDictionary(x => x.Id.ToString(), x => x.SanPhamId);
+
+        var orderDetails = await _context.ChiTietDonHangs.AsNoTracking()
+            .Include(x => x.DonHang).Include(x => x.SanPham).Include(x => x.SerialSanPhams)
             .Where(x => x.DonHang!.TrangThai != TrangThaiDonHang.DaHuy)
             .OrderByDescending(x => x.DonHang!.NgayDat)
-            .Select(x => new SelectListItem($"{x.DonHang!.MaDonHang} - {x.SanPham!.MaSanPham} ({x.SoLuong})", x.Id.ToString(), x.Id == selectedOrderDetailId))
             .ToListAsync();
+        ViewBag.DonHangs = orderDetails.Select(x =>
+            new SelectListItem($"{x.DonHang!.MaDonHang} - {x.SanPham!.MaSanPham} ({x.SerialSanPhams.Count}/{x.SoLuong} serial)", x.Id.ToString(), x.Id == selectedOrderDetailId)).ToList();
+        ViewBag.DonHangSanPhamIds = orderDetails.ToDictionary(x => x.Id.ToString(), x => x.SanPhamId);
     }
 
     private static void Normalize(SerialSanPhamVM model)

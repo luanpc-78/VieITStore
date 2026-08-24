@@ -51,3 +51,32 @@
         <span asp-validation-for="GhiChu" class="text-danger"></span>
     </div>
 </div>
+
+<script>
+    (() => {
+        const receiptProducts = @Html.Raw(Json.Serialize(ViewBag.PhieuNhapSanPhamIds));
+        const orderProducts = @Html.Raw(Json.Serialize(ViewBag.DonHangSanPhamIds));
+        const productSelect = document.getElementById('SanPhamId');
+        const receiptSelect = document.getElementById('ChiTietPhieuNhapId');
+        const orderSelect = document.getElementById('ChiTietDonHangId');
+
+        const filterOptions = (select, productMap) => {
+            const productId = Number(productSelect.value);
+            [...select.options].forEach(option => {
+                if (!option.value) return;
+                const matches = productId > 0 && Number(productMap[option.value]) === productId;
+                option.hidden = !matches;
+                option.disabled = !matches;
+            });
+            if (select.value && select.selectedOptions[0]?.disabled) select.value = '';
+        };
+
+        const syncSelections = () => {
+            filterOptions(receiptSelect, receiptProducts);
+            filterOptions(orderSelect, orderProducts);
+        };
+
+        productSelect.addEventListener('change', syncSelections);
+        syncSelections();
+    })();
+</script>
