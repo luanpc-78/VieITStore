@@ -30,7 +30,7 @@ public class HoSoController : Controller
         return View(new HoSoVM
         {
             HoTen = user.HoTen,
-            Email = user.Email ?? string.Empty,
+            Email = user.Email,
             SoDienThoai = user.SoDienThoai ?? string.Empty,
             GioiTinh = user.KhachHang.GioiTinh,
             NgaySinh = user.KhachHang.NgaySinh,
@@ -48,7 +48,8 @@ public class HoSoController : Controller
         var userId = HttpContext.Session.GetInt32("UserId");
         if (!userId.HasValue) return RedirectToLogin();
 
-        if (await _context.NguoiDungs.AnyAsync(x => x.Id != userId.Value && x.Email == model.Email))
+        var normalizedEmail = model.Email.Trim().ToLowerInvariant();
+        if (await _context.NguoiDungs.AnyAsync(x => x.Id != userId.Value && x.Email.ToLower() == normalizedEmail))
             ModelState.AddModelError(nameof(model.Email), "Email đã được sử dụng.");
 
         if (!ModelState.IsValid)
@@ -63,13 +64,15 @@ public class HoSoController : Controller
         if (user?.KhachHang == null) return NotFound();
 
         user.HoTen = model.HoTen.Trim();
-        user.Email = model.Email.Trim();
+        user.Email = normalizedEmail;
+        user.TenDangNhap = normalizedEmail;
         user.SoDienThoai = model.SoDienThoai.Trim();
         user.KhachHang.GioiTinh = model.GioiTinh;
         user.KhachHang.NgaySinh = model.NgaySinh;
 
         await _context.SaveChangesAsync();
-        HttpContext.Session.SetString("UserName", user.HoTen);
+        HttpContext.Session.SetString("HoTen", user.HoTen);
+        HttpContext.Session.SetString("Email", user.Email);
         TempData["Success"] = "Đã cập nhật hồ sơ.";
         return RedirectToAction(nameof(Index));
     }
