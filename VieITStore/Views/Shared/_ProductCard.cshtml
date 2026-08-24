@@ -1,0 +1,25 @@
+@model VieITStore.Models.Entities.SanPham
+@{
+    var currentPrice = Model.GiaKhuyenMai ?? Model.GiaBan;
+    var available = Model.TrangThai && Model.SoLuongTon > 0;
+    var badge = ViewData["Badge"] as string;
+}
+<article class="product-card">
+    <a class="product-media" asp-controller="SanPham" asp-action="ChiTiet" asp-route-id="@Model.Id" aria-label="Xem @Model.TenSanPham">
+        @if (Model.GiaKhuyenMai.HasValue && Model.GiaBan > 0) { <span class="product-badge sale">-@Math.Round((1 - Model.GiaKhuyenMai.Value / Model.GiaBan) * 100)%</span> }
+        else if (!string.IsNullOrWhiteSpace(badge)) { <span class="product-badge new">@badge</span> }
+        <img src="@(Model.HinhAnh ?? "/images/no-image.jpg")" class="product-img" alt="@Model.TenSanPham" loading="lazy" />
+    </a>
+    <div class="product-body">
+        <span class="product-category">@(Model.DanhMuc?.TenDanhMuc ?? Model.ThuongHieu ?? "Sản phẩm")</span>
+        <a class="product-name" asp-controller="SanPham" asp-action="ChiTiet" asp-route-id="@Model.Id">@Model.TenSanPham</a>
+        <div class="product-pricing">
+            @if (Model.GiaKhuyenMai.HasValue) { <div class="old-price">@Model.GiaBan.ToString("N0") đ</div> }
+            <div class="price">@currentPrice.ToString("N0") đ</div>
+        </div>
+        <div class="product-meta">
+            <span class="stock-status @(available ? "in-stock" : "out-stock")"><i class="fas @(available ? "fa-circle-check" : "fa-circle-xmark") me-1"></i>@(available ? $"Còn {Model.SoLuongTon}" : "Hết hàng")</span>
+            <button type="button" class="btn btn-primary btn-sm add-cart-btn" onclick="addToCart(@Model.Id, this)" disabled="@(!available)" data-unavailable="@(!available ? "true" : "false")" data-default-label="Thêm vào giỏ"><i class="fas fa-cart-plus"></i><span data-button-label>Thêm</span></button>
+        </div>
+    </div>
+</article>

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VieITStore.Models;
+using VieITStore.Models.Entities;
+using VieITStore.Models.ViewModels;
 
 namespace VieITStore.Controllers
 {
@@ -68,6 +70,28 @@ namespace VieITStore.Controllers
                     .Where(s => s.DanhMucId == sanPham.DanhMucId && s.Id != id && s.TrangThai)
                     .Take(4)
                     .ToListAsync();
+
+                var visibleReviews = await _context.DanhGias.AsNoTracking()
+                    .Include(x => x.KhachHang).ThenInclude(x => x!.NguoiDung)
+                    .Where(x => x.SanPhamId == id && x.HienThi)
+                    .OrderByDescending(x => x.NgayDanhGia).ToListAsync();
+                var reviewVm = new DanhGiaSanPhamVM
+                {
+                    DanhGias = visibleReviews,
+                    TongDanhGia = visibleReviews.Count,
+                    DiemTrungBinh = visibleReviews.Count == 0 ? 0 : visibleReviews.Average(x => x.SoSao)
+                };
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (userId.HasValue)
+                {
+                    var customer = await _context.KhachHangs.SingleOrDefaultAsync(x => x.NguoiDungId == userId);
+                    if (customer != null)
+                    {
+                        reviewVm.DanhGiaCuaToi = await _context.DanhGias.AsNoTracking().SingleOrDefaultAsync(x => x.KhachHangId == customer.Id && x.SanPhamId == id);
+                        reviewVm.DuocDanhGia = await _context.ChiTietDonHangs.AnyAsync(x => x.SanPhamId == id && x.DonHang!.KhachHangId == customer.Id && x.DonHang.TrangThai == TrangThaiDonHang.HoanThanh);
+                    }
+                }
+                ViewBag.DanhGia = reviewVm;
 
                 return View(sanPham);
             }
