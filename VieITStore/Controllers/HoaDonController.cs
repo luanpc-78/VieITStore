@@ -83,7 +83,7 @@ public class HoaDonController : Controller
             SoHoaDon = $"HD-{DateTime.Now:yyyyMMdd}-{order.Id:D6}",
             NgayLap = DateTime.Now,
             KhachHangId = order.KhachHangId,
-            NguoiLap = HttpContext.Session.GetString("UserName") ?? "Nhân viên",
+            NguoiLap = HttpContext.Session.GetString("HoTen") ?? "Nhân viên",
             TongTienHang = order.TongTienHang,
             ThueVAT = 0,
             TienThueVAT = 0,
