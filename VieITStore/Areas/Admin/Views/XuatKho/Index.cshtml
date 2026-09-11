@@ -1,0 +1,41 @@
+@model IReadOnlyList<PhieuDieuChinhTonKho>
+@{
+    ViewData["Title"] = "Xuất kho và điều chỉnh tồn";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0">Lịch sử xuất kho và điều chỉnh tồn</h5>
+    <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Tạo phiếu</a>
+</div>
+
+<div class="card"><div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead class="table-light"><tr><th>Mã phiếu</th><th>Loại giao dịch</th><th>Ngày tạo</th><th>Người thực hiện</th><th class="text-center">Số mặt hàng</th><th>Lý do</th><th></th></tr></thead>
+        <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="7" class="text-center text-muted py-4">Chưa có phiếu xuất kho hoặc điều chỉnh tồn.</td></tr>
+        }
+        @foreach (var voucher in Model)
+        {
+            var typeText = voucher.LoaiGiaoDich switch
+            {
+                LoaiGiaoDichTonKho.XuatNoiBo => "Xuất nội bộ",
+                LoaiGiaoDichTonKho.HangLoi => "Hàng lỗi",
+                LoaiGiaoDichTonKho.DieuChinhTang => "Điều chỉnh tăng",
+                _ => "Điều chỉnh giảm"
+            };
+            var badge = voucher.LoaiGiaoDich == LoaiGiaoDichTonKho.DieuChinhTang ? "bg-success" : "bg-warning text-dark";
+            <tr>
+                <td><strong>@voucher.MaPhieu</strong></td>
+                <td><span class="badge @badge">@typeText</span></td>
+                <td>@voucher.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@voucher.NguoiThucHien?.HoTen</td>
+                <td class="text-center">@voucher.ChiTiets.Count</td>
+                <td class="text-truncate" style="max-width:260px">@voucher.LyDo</td>
+                <td class="text-end"><a asp-action="Details" asp-route-id="@voucher.Id" class="btn btn-sm btn-outline-primary">Chi tiết</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div></div>

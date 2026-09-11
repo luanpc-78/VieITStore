@@ -1,0 +1,126 @@
+@model BaoCaoVM
+@{
+    ViewData["Title"] = "Báo cáo kinh doanh";
+    string StatusText(TrangThaiDonHang status) => status switch
+    {
+        TrangThaiDonHang.ChoXacNhan => "Chờ xác nhận",
+        TrangThaiDonHang.DaXacNhan => "Đã xác nhận",
+        TrangThaiDonHang.DangChuanBi => "Đang chuẩn bị",
+        TrangThaiDonHang.DangGiao => "Đang giao",
+        TrangThaiDonHang.DaGiao => "Đã giao",
+        TrangThaiDonHang.HoanThanh => "Hoàn thành",
+        TrangThaiDonHang.DaHuy => "Đã hủy",
+        TrangThaiDonHang.YeuCauTraHang => "Yêu cầu trả hàng",
+        _ => status.ToString()
+    };
+}
+
+<form method="get" class="card card-body mb-3">
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    }
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Từ ngày</label>
+            <input type="date" name="tuNgay" value="@Model.TuNgay.ToString("yyyy-MM-dd")" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Đến ngày</label>
+            <input type="date" name="denNgay" value="@Model.DenNgay.ToString("yyyy-MM-dd")" class="form-control" required>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+            <button class="btn btn-primary flex-grow-1"><i class="fas fa-chart-line"></i> Xem báo cáo</button>
+            <a asp-action="ExportCsv" asp-route-tuNgay="@Model.TuNgay.ToString("yyyy-MM-dd")" asp-route-denNgay="@Model.DenNgay.ToString("yyyy-MM-dd")" class="btn btn-success">
+                <i class="fas fa-file-csv"></i> Xuất CSV
+            </a>
+        </div>
+    </div>
+</form>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="stat-card"><div class="text-muted">Doanh thu hoàn thành</div><div class="fs-3 fw-bold text-success">@Model.DoanhThu.ToString("N0") đ</div></div></div>
+    <div class="col-md-4"><div class="stat-card"><div class="text-muted">Tổng đơn</div><div class="fs-3 fw-bold">@Model.TongDon</div></div></div>
+    <div class="col-md-4"><div class="stat-card"><div class="text-muted">Giá trị nhập kho</div><div class="fs-3 fw-bold text-primary">@Model.GiaTriNhap.ToString("N0") đ</div></div></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><strong>Doanh thu theo ngày</strong></div>
+            <div class="table-responsive"><table class="table mb-0">
+                <thead><tr><th>Ngày</th><th class="text-end">Số đơn</th><th class="text-end">Doanh thu</th></tr></thead>
+                <tbody>
+                    @if (Model.DoanhThuTheoNgay.Any())
+                    {
+                        @foreach (var item in Model.DoanhThuTheoNgay)
+                        {
+                            <tr><td>@item.Ngay.ToString("dd/MM/yyyy")</td><td class="text-end">@item.SoDon</td><td class="text-end">@item.DoanhThu.ToString("N0") đ</td></tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="3" class="text-center text-muted py-4">Chưa có doanh thu hoàn thành.</td></tr>
+                    }
+                </tbody>
+            </table></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><strong>Đơn theo trạng thái</strong></div>
+            <div class="card-body">
+                @if (Model.DonTheoTrangThai.Any())
+                {
+                    @foreach (var item in Model.DonTheoTrangThai)
+                    {
+                        <div class="d-flex justify-content-between border-bottom py-2"><span>@StatusText(item.TrangThai)</span><strong>@item.SoLuong</strong></div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Chưa có đơn hàng.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><strong>Sản phẩm bán chạy</strong></div>
+            <div class="table-responsive"><table class="table mb-0">
+                <thead><tr><th>Sản phẩm</th><th class="text-end">Đã bán</th><th class="text-end">Doanh thu</th></tr></thead>
+                <tbody>
+                    @if (Model.BanChay.Any())
+                    {
+                        @foreach (var item in Model.BanChay)
+                        {
+                            <tr><td>@item.MaSanPham · @item.TenSanPham</td><td class="text-end">@item.SoLuong</td><td class="text-end">@item.DoanhThu.ToString("N0") đ</td></tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="3" class="text-center text-muted py-4">Chưa có sản phẩm bán trong kỳ.</td></tr>
+                    }
+                </tbody>
+            </table></div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><strong>Tồn kho thấp (≤ 10)</strong></div>
+            <div class="card-body">
+                @if (Model.TonKhoThap.Any())
+                {
+                    @foreach (var item in Model.TonKhoThap)
+                    {
+                        <div class="d-flex justify-content-between border-bottom py-2"><span>@item.MaSanPham · @item.TenSanPham</span><strong class="text-danger">@item.SoLuongTon</strong></div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Không có sản phẩm tồn thấp.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

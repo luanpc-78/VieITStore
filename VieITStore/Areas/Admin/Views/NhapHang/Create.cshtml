@@ -1,0 +1,149 @@
+@model VieITStore.Models.Entities.PhieuNhap
+@{
+    ViewData["Title"] = "Nhập hàng mới";
+    var nhaCungCaps = ViewBag.NhaCungCaps as List<VieITStore.Models.Entities.NhaCungCap>;
+    var sanPhams = ViewBag.SanPhams as List<VieITStore.Models.Entities.SanPham>;
+}
+
+<div class="card">
+    <div class="card-header"><h5 class="mb-0">Phiếu nhập hàng mới</h5></div>
+    <div class="card-body">
+        <form id="phieuNhapForm" asp-action="Create" method="post">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            }
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nhà cung cấp</label>
+                    <select asp-for="NhaCungCapId" class="form-select" required>
+                        <option value="">-- Chọn nhà cung cấp --</option>
+                        @foreach (var ncc in nhaCungCaps ?? [])
+                        {
+                            <option value="@ncc.Id">@ncc.TenNCC - @ncc.NguoiLienHe</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="GhiChu" class="form-label">Ghi chú</label>
+                    <input asp-for="GhiChu" class="form-control" placeholder="Ghi chú phiếu nhập">
+                </div>
+            </div>
+
+            <h6 class="mb-2">Chi tiết nhập hàng</h6>
+            <p class="text-muted small">Serial/IMEI không bắt buộc. Nếu có, nhập mỗi mã một dòng; hệ thống sẽ tự liên kết với phiếu nhập và chuyển trạng thái vào kho.</p>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle" id="chiTietTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="min-width:260px">Sản phẩm</th>
+                            <th style="min-width:150px">Đơn giá nhập</th>
+                            <th style="width:110px">Số lượng</th>
+                            <th style="min-width:220px">Serial/IMEI</th>
+                            <th style="min-width:150px" class="text-end">Thành tiền</th>
+                            <th style="width:50px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="chiTietBody"></tbody>
+                </table>
+            </div>
+
+            <button type="button" class="btn btn-outline-primary btn-sm" id="addRowButton">
+                <i class="fas fa-plus"></i> Thêm sản phẩm
+            </button>
+
+            <div class="row mt-4 justify-content-end">
+                <div class="col-md-4">
+                    <table class="table table-borderless mb-0">
+                        <tr><td class="text-end">Tổng tiền:</td><td class="text-end fw-bold fs-5 text-danger"><span id="tongTien">0</span> đ</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="text-end mt-3">
+                <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu phiếu nhập</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const sanPhams = @Html.Raw(Json.Serialize((sanPhams ?? []).Select(sp => new {
+        id = sp.Id,
+        maSanPham = sp.MaSanPham,
+        tenSanPham = sp.TenSanPham,
+        soLuongTon = sp.SoLuongTon,
+        giaNhap = sp.GiaNhap
+    }).ToList()));
+
+    const formatCurrency = value => Math.trunc(Number(value) || 0).toLocaleString('vi-VN');
+    const escapeHtml = value => {
+        const element = document.createElement('div');
+        element.textContent = value ?? '';
+        return element.innerHTML;
+    };
+
+    function reindexRows() {
+        document.querySelectorAll('#chiTietBody tr').forEach((row, index) => {
+            row.querySelector('[data-field="product"]').name = `chiTiets[${index}].SanPhamId`;
+            row.querySelector('[data-field="price"]').name = `chiTiets[${index}].DonGiaNhap`;
+            row.querySelector('[data-field="quantity"]').name = `chiTiets[${index}].SoLuong`;
+            row.querySelector('[data-field="serials"]').name = `serialInputs[${index}]`;
+        });
+    }
+
+    function addRow() {
+        const row = document.createElement('tr');
+        const options = sanPhams.map(sp =>
+            `<option value="${sp.id}" data-price="${sp.giaNhap}">${escapeHtml(sp.maSanPham)} - ${escapeHtml(sp.tenSanPham)} (Tồn: ${sp.soLuongTon})</option>`
+        ).join('');
+
+        row.innerHTML = `
+            <td><select data-field="product" class="form-select" required><option value="">-- Chọn sản phẩm --</option>${options}</select></td>
+            <td><div class="input-group"><input data-field="price" type="number" min="1" step="1" class="form-control text-end" required><span class="input-group-text">đ</span></div></td>
+            <td><input data-field="quantity" type="number" min="1" value="1" class="form-control text-center" required></td>
+            <td><textarea data-field="serials" class="form-control font-monospace" rows="2" placeholder="Mỗi mã một dòng"></textarea><div class="form-text" data-serial-count>0 serial</div></td>
+            <td class="text-end"><span data-line-total class="fw-bold">0</span> đ</td>
+            <td><button type="button" class="btn btn-danger btn-sm" data-remove-row aria-label="Xóa dòng"><i class="fas fa-trash"></i></button></td>`;
+
+        document.getElementById('chiTietBody').appendChild(row);
+        reindexRows();
+
+        const product = row.querySelector('[data-field="product"]');
+        product.addEventListener('change', () => {
+            const price = product.selectedOptions[0]?.dataset.price;
+            if (price && !row.querySelector('[data-field="price"]').value)
+                row.querySelector('[data-field="price"]').value = Math.trunc(Number(price));
+            calculateTotal();
+        });
+        row.querySelectorAll('input').forEach(input => input.addEventListener('input', calculateTotal));
+        row.querySelector('[data-field="serials"]').addEventListener('input', event => {
+            const count = event.target.value.split(/[\r\n,;]+/).filter(x => x.trim()).length;
+            row.querySelector('[data-serial-count]').textContent = `${count} serial`;
+        });
+        row.querySelector('[data-remove-row]').addEventListener('click', () => {
+            row.remove();
+            reindexRows();
+            calculateTotal();
+        });
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('#chiTietBody tr').forEach(row => {
+            const price = Number(row.querySelector('[data-field="price"]').value) || 0;
+            const quantity = Number(row.querySelector('[data-field="quantity"]').value) || 0;
+            const lineTotal = price * quantity;
+            row.querySelector('[data-line-total]').textContent = formatCurrency(lineTotal);
+            total += lineTotal;
+        });
+        document.getElementById('tongTien').textContent = formatCurrency(total);
+    }
+
+    document.getElementById('addRowButton').addEventListener('click', addRow);
+    document.getElementById('phieuNhapForm').addEventListener('submit', reindexRows);
+    addRow();
+</script>
+}

@@ -1,0 +1,53 @@
+@model VieITStore.Models.Entities.SanPham
+@{
+    ViewData["Title"] = Model.TenSanPham;
+    var sanPhamLienQuan = ViewBag.SanPhamLienQuan as List<VieITStore.Models.Entities.SanPham> ?? new();
+    var giaHienTai = Model.GiaKhuyenMai ?? Model.GiaBan;
+    var gallery = new List<string>();
+    if (!string.IsNullOrWhiteSpace(Model.HinhAnh)) gallery.Add(Model.HinhAnh);
+    if (!string.IsNullOrWhiteSpace(Model.HinhAnhBoSung)) gallery.AddRange(Model.HinhAnhBoSung.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+    gallery = gallery.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    var mainImage = gallery.FirstOrDefault() ?? "/images/no-image.jpg";
+    var reviewVm = ViewBag.DanhGia as VieITStore.Models.ViewModels.DanhGiaSanPhamVM ?? new();
+}
+
+<div class="product-detail"><div class="container store-container">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li><li class="breadcrumb-item"><a asp-action="Index" asp-route-danhMucId="@Model.DanhMucId">@Model.DanhMuc?.TenDanhMuc</a></li><li class="breadcrumb-item active" aria-current="page">@Model.TenSanPham</li></ol></nav>
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-6"><div class="store-surface product-gallery">
+            <div class="product-main-image"><img id="productMainImage" src="@mainImage" alt="@Model.TenSanPham" /></div>
+            @if (gallery.Count > 1) { <div class="product-thumbnails" aria-label="Thư viện ảnh">@for (var i = 0; i < gallery.Count; i++) { var image = gallery[i]; <button type="button" class="product-thumbnail @(i == 0 ? "active" : "")" onclick="selectProductImage(this, '@image')" aria-label="Chọn ảnh @(i + 1)"><img src="@image" alt="Ảnh @(i + 1) của @Model.TenSanPham" /></button> }</div> }
+        </div></div>
+        <div class="col-lg-6"><div class="store-surface product-info-panel">
+            <span class="product-category">@Model.DanhMuc?.TenDanhMuc</span><h1 class="product-detail-title mt-2">@Model.TenSanPham</h1>
+            <div class="product-spec-meta"><span>SKU: <strong>@Model.MaSanPham</strong></span><span>Thương hiệu: <strong>@(Model.ThuongHieu ?? "Đang cập nhật")</strong></span><span>Bảo hành: <strong>@Model.BaoHanh tháng</strong></span></div>
+            <div class="detail-price">@if (Model.GiaKhuyenMai.HasValue) { <div class="old-price fs-6">@Model.GiaBan.ToString("N0") đ</div> }<div class="price">@giaHienTai.ToString("N0") đ</div>@if (Model.GiaKhuyenMai.HasValue) { <span class="badge text-bg-danger">Tiết kiệm @((Model.GiaBan - Model.GiaKhuyenMai.Value).ToString("N0")) đ</span> }</div>
+            <p class="text-muted">@(Model.MoTaNgan ?? "Thông tin sản phẩm đang được cập nhật.")</p>
+            <ul class="list-unstyled d-grid gap-2"><li><i class="fas fa-circle-check text-success me-2"></i>Hàng chính hãng 100%</li><li><i class="fas fa-shield-halved text-primary me-2"></i>Bảo hành @Model.BaoHanh tháng</li><li><i class="fas fa-rotate-left text-primary me-2"></i>Đổi trả trong 7 ngày</li></ul>
+            <div class="purchase-row">
+                <div><label for="soLuong" class="form-label fw-bold">Số lượng</label><div class="quantity-control"><button class="btn btn-outline-secondary" type="button" onclick="changeQty(-1)" aria-label="Giảm số lượng">−</button><input type="number" id="soLuong" class="form-control" value="1" min="1" max="@Model.SoLuongTon" /><button class="btn btn-outline-secondary" type="button" onclick="changeQty(1)" aria-label="Tăng số lượng">+</button></div></div>
+                <span class="stock-status @(Model.SoLuongTon > 0 ? "in-stock" : "out-stock") mt-4">@(Model.SoLuongTon > 0 ? $"Còn {Model.SoLuongTon} sản phẩm" : "Hết hàng")</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-4"><button id="detailAddButton" class="btn btn-primary btn-lg add-cart-btn" onclick="addToCartWithQty(@Model.Id, this)" disabled="@(Model.SoLuongTon <= 0)" data-unavailable="@(Model.SoLuongTon <= 0 ? "true" : "false")" data-default-label="Thêm vào giỏ"><i class="fas fa-cart-plus"></i><span data-button-label>Thêm vào giỏ</span></button><a asp-controller="GioHang" asp-action="Index" class="btn btn-outline-primary btn-lg">Xem giỏ hàng</a></div>
+        </div></div>
+    </div>
+    <div class="row g-4 mt-2"><div class="col-lg-7"><section class="store-surface detail-content-card"><h2 class="h5 fw-bold">Mô tả chi tiết</h2>@await Html.PartialAsync("_ProductDescription", Model.MoTaChiTiet ?? string.Empty)</section></div><div class="col-lg-5"><section class="store-surface detail-content-card"><h2 class="h5 fw-bold">Thông số kỹ thuật</h2><div class="spec-content">@(Model.ThongSoKyThuat ?? "Thông số đang được cập nhật.")</div></section></div></div>
+    <section class="store-section pb-0"><div class="section-heading"><div><div class="section-kicker">Khách hàng xác thực</div><h2 class="section-title">Đánh giá sản phẩm</h2></div><div><strong class="fs-3 text-warning">@reviewVm.DiemTrungBinh.ToString("0.0") ★</strong><div class="small text-muted">@reviewVm.TongDanhGia đánh giá</div></div></div>
+        @if(reviewVm.DuocDanhGia){<form asp-controller="DanhGia" asp-action="Luu" method="post" class="store-surface detail-content-card mb-3"><input type="hidden" name="SanPhamId" value="@Model.Id"/><h3 class="h6 fw-bold">@(reviewVm.DanhGiaCuaToi==null?"Viết đánh giá":"Cập nhật đánh giá của bạn")</h3><div class="row g-2"><div class="col-md-2"><label for="reviewStars" class="form-label">Số sao</label><select id="reviewStars" name="SoSao" class="form-select" required>@for(var star=5;star>=1;star--){<option value="@star" selected="@(reviewVm.DanhGiaCuaToi?.SoSao==star)">@star sao</option>}</select></div><div class="col-md-8"><label for="reviewContent" class="form-label">Nội dung</label><textarea id="reviewContent" name="NoiDung" class="form-control" minlength="10" maxlength="1000" required>@reviewVm.DanhGiaCuaToi?.NoiDung</textarea></div><div class="col-md-2 d-flex align-items-end"><button class="btn btn-primary w-100">Lưu đánh giá</button></div></div></form>}
+        else if(Context.Session.GetInt32("UserId")==null){<div class="alert alert-info">Hãy <a asp-controller="TaiKhoan" asp-action="DangNhap">đăng nhập</a> để đánh giá sản phẩm đã mua.</div>}
+        else{<div class="alert alert-light border">Bạn có thể đánh giá sau khi đơn chứa sản phẩm này hoàn thành.</div>}
+        <div class="d-grid gap-3">@if(reviewVm.DanhGias.Any()){@foreach(var review in reviewVm.DanhGias){<article class="store-surface detail-content-card"><div class="d-flex justify-content-between"><strong>@review.KhachHang?.NguoiDung?.HoTen</strong><span class="text-warning">@string.Concat(Enumerable.Repeat("★",review.SoSao))</span></div><p class="mb-1 mt-2">@review.NoiDung</p><small class="text-muted">@(review.NgayCapNhat??review.NgayDanhGia).ToString("dd/MM/yyyy HH:mm")</small></article>}}else{<div class="empty-state py-4">Chưa có đánh giá nào cho sản phẩm này.</div>}</div>
+    </section>
+    @if (sanPhamLienQuan.Any()) { <section class="store-section pb-0"><div class="section-heading"><div><div class="section-kicker">Có thể bạn quan tâm</div><h2 class="section-title">Sản phẩm liên quan</h2></div></div><div class="product-grid">@foreach (var sp in sanPhamLienQuan) { @await Html.PartialAsync("_ProductCard", sp) }</div></section> }
+</div></div>
+
+@section Scripts {
+    <div id="cartAntiForgery" class="d-none">@Html.AntiForgeryToken()</div>
+    <script>
+        function selectProductImage(button, image) { document.getElementById('productMainImage').src = image; document.querySelectorAll('.product-thumbnail').forEach(x => x.classList.remove('active')); button.classList.add('active'); }
+        function changeQty(delta) { const input = document.getElementById('soLuong'); const max = Number(input.max); const next = Math.min(max, Math.max(1, (Number(input.value) || 1) + delta)); input.value = next; }
+        document.getElementById('soLuong').addEventListener('change', function () { this.value = Math.min(Number(this.max), Math.max(1, Number(this.value) || 1)); });
+        function addToCartWithQty(sanPhamId, button) { const qty = Number(document.getElementById('soLuong').value); setCartButtonLoading(button, true); $.post('@Url.Action("ThemVaoGio", "GioHang")', { sanPhamId, soLuong: qty, __RequestVerificationToken: $('#cartAntiForgery input').val() }).done(function(data){ if(data.success){updateCartCount();showStoreToast(data.message);} else showStoreToast(data.message || 'Không thể thêm sản phẩm.','danger'); }).fail(function(xhr){showStoreToast(xhr.responseJSON?.message || 'Không thể thêm sản phẩm vào giỏ.','danger');}).always(function(){setCartButtonLoading(button,false);}); }
+        function addToCart(sanPhamId, button) { setCartButtonLoading(button,true); $.post('@Url.Action("ThemVaoGio", "GioHang")',{sanPhamId,soLuong:1,__RequestVerificationToken:$('#cartAntiForgery input').val()}).done(function(data){if(data.success){updateCartCount();showStoreToast(data.message);}else showStoreToast(data.message || 'Không thể thêm sản phẩm.','danger');}).fail(function(xhr){showStoreToast(xhr.responseJSON?.message || 'Không thể thêm sản phẩm vào giỏ.','danger');}).always(function(){setCartButtonLoading(button,false);}); }
+    </script>
+}

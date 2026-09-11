@@ -1,0 +1,4 @@
+using VieITStore.Models.Entities;
+namespace VieITStore.Models.ViewModels;
+public class BaoCaoVM { public DateTime TuNgay { get; set; } public DateTime DenNgay { get; set; } public decimal DoanhThu { get; set; } public int TongDon { get; set; } public decimal GiaTriNhap { get; set; } public List<BaoCaoTheoNgayVM> DoanhThuTheoNgay { get; set; }=[]; public List<BaoCaoTrangThaiVM> DonTheoTrangThai { get; set; }=[]; public List<BaoCaoSanPhamVM> BanChay { get; set; }=[]; public List<BaoCaoTonKhoVM> TonKhoThap { get; set; }=[]; }
+public record BaoCaoTheoNgayVM(DateTime Ngay, decimal DoanhThu, int SoDon); public record BaoCaoTrangThaiVM(TrangThaiDonHang TrangThai,int SoLuong); public record BaoCaoSanPhamVM(string MaSanPham,string TenSanPham,int SoLuong,decimal DoanhThu); public record BaoCaoTonKhoVM(string MaSanPham,string TenSanPham,int SoLuongTon);

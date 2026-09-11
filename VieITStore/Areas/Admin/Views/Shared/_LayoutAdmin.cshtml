@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Quản trị VieITStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --sidebar-width: 260px; --primary: #4f46e5; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; }
+        .sidebar { width: 260px; min-height: 100vh; background: #1e293b; position: fixed; left: 0; top: 0; z-index: 1000; transition: 0.3s; }
+        .sidebar-header { padding: 20px; background: #0f172a; color: white; }
+        .sidebar-menu { list-style: none; padding: 0; }
+        .sidebar-menu li a { display: block; padding: 12px 20px; color: #94a3b8; text-decoration: none; transition: 0.3s; border-left: 3px solid transparent; }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: #334155; color: white; border-left-color: var(--primary); }
+        .sidebar-menu li a i { width: 24px; }
+        .main-content { margin-left: 260px; padding: 20px; }
+        .topbar { background: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.3s; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .table-actions .btn { padding: 4px 8px; font-size: 0.85rem; }
+        @@media (max-width: 768px) {
+            .sidebar { margin-left: -260px; }
+            .sidebar.active { margin-left: 0; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h5 class="mb-0"><i class="fas fa-microchip"></i> VieITStore</h5>
+            <small>Quản trị hệ thống</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                <i class="fas fa-tachometer-alt"></i> Tổng quan</a></li>
+            <li><a href="@Url.Action("Index", "DonHangAdmin", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "DonHangAdmin" ? "active" : "")">
+                <i class="fas fa-shopping-bag"></i> Đơn hàng</a></li>
+            <li><a href="@Url.Action("Index", "SanPhamAdmin", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "SanPhamAdmin" ? "active" : "")">
+                <i class="fas fa-box"></i> Sản phẩm</a></li>
+            <li><a href="@Url.Action("Index", "DanhMucAdmin", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "DanhMucAdmin" ? "active" : "")">
+                <i class="fas fa-list"></i> Danh mục</a></li>
+            <li><a href="@Url.Action("Index", "NhapHang", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "NhapHang" ? "active" : "")">
+                <i class="fas fa-truck-loading"></i> Nhập hàng</a></li>
+            <li><a href="@Url.Action("Index", "NhaCungCap", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "NhaCungCap" ? "active" : "")">
+                <i class="fas fa-building"></i> Nhà cung cấp</a></li>
+            <li><a href="@Url.Action("Index", "XuatKho", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "XuatKho" ? "active" : "")">
+                <i class="fas fa-dolly"></i> Xuất/điều chỉnh kho</a></li>
+            <li><a href="@Url.Action("Index", "SerialSanPham", new { area = "Admin" })" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "SerialSanPham" ? "active" : "")">
+                <i class="fas fa-barcode"></i> Serial &amp; bảo hành</a></li>
+            <li><a asp-area="Admin" asp-controller="KhachHangAdmin" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "KhachHangAdmin" ? "active" : "")"><i class="fas fa-users"></i> Khách hàng</a></li>
+            <li><a asp-area="Admin" asp-controller="DanhGiaAdmin" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "DanhGiaAdmin" ? "active" : "")"><i class="fas fa-star"></i> Đánh giá</a></li>
+            @if (Context.Session.GetString("VaiTro") == VaiTro.Admin.ToString())
+            {
+                <li><a asp-area="Admin" asp-controller="BaoCao" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "BaoCao" ? "active" : "")"><i class="fas fa-chart-bar"></i> Báo cáo</a></li>
+            }
+            <li class="mt-4 pt-4 border-top border-secondary"><a href="/"><i class="fas fa-store"></i> Về cửa hàng</a></li>
+            <li><a href="@Url.Action("DangXuat", "TaiKhoan", new { area = "" })"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <button class="btn btn-sm btn-outline-secondary d-md-none" onclick="document.querySelector('.sidebar').classList.toggle('active')">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h5 class="mb-0">@ViewData["Title"]</h5>
+            <div>
+                <span class="text-muted"><i class="fas fa-user-circle"></i> @Context.Session.GetString("HoTen")</span>
+                <span class="badge bg-primary ms-2">@Context.Session.GetString("VaiTro")</span>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="fas fa-check-circle"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @RenderBody()
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

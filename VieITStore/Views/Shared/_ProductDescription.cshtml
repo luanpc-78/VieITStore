@@ -1,0 +1,23 @@
+@model string
+@{ var lines=(Model??string.Empty).Replace("\r\n","\n").Split('\n'); var paragraph=new List<string>(); }
+@if(string.IsNullOrWhiteSpace(Model)){<p class="text-muted mb-0">Chưa có mô tả chi tiết.</p>}
+else
+{
+<div class="product-description">
+@foreach(var rawLine in lines)
+{
+    var line=rawLine.Trim();
+    if(line.StartsWith("# ",StringComparison.Ordinal))
+    {
+        if(paragraph.Count>0){<p>@string.Join(" ",paragraph)</p> paragraph.Clear();}
+        <h3>@line[2..].Trim()</h3>
+    }
+    else if(line.Length==0)
+    {
+        if(paragraph.Count>0){<p>@string.Join(" ",paragraph)</p> paragraph.Clear();}
+    }
+    else{paragraph.Add(line);}
+}
+@if(paragraph.Count>0){<p>@string.Join(" ",paragraph)</p>}
+</div>
+}

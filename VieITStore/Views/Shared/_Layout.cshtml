@@ -1,50 +1,112 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - VieITStore</title>
-    <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/VieITStore.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">VieITStore</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+    <header class="store-header sticky-top">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container store-container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index"><i class="fas fa-microchip" aria-hidden="true"></i><span>VieITStore</span></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#storeNav" aria-controls="storeNav" aria-expanded="false" aria-label="Mở menu"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="storeNav">
+                    <ul class="navbar-nav store-nav-links">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Danh mục</a>
+                            <ul class="dropdown-menu">
+                                @foreach (var dm in ViewBag.DanhMucs ?? new List<VieITStore.Models.Entities.DanhMuc>())
+                                {
+                                    <li><a class="dropdown-item" asp-controller="SanPham" asp-action="Index" asp-route-danhMucId="@dm.Id">@dm.TenDanhMuc</a></li>
+                                }
+                            </ul>
                         </li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="SanPham" asp-action="Index">Sản phẩm</a></li>
+                    </ul>
+
+                    <form class="header-search" asp-controller="SanPham" asp-action="Index" method="get" role="search">
+                        <label class="visually-hidden" for="headerSearch">Tìm sản phẩm</label>
+                        <input id="headerSearch" name="search" class="form-control" type="search" placeholder="Tìm tên, mã sản phẩm..." />
+                        <button class="btn" type="submit" aria-label="Tìm kiếm"><i class="fas fa-search" aria-hidden="true"></i></button>
+                    </form>
+
+                    <ul class="navbar-nav store-account-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link cart-link" asp-controller="GioHang" asp-action="Index" aria-label="Giỏ hàng">
+                                <i class="fas fa-shopping-bag" aria-hidden="true"></i><span class="d-lg-none ms-2">Giỏ hàng</span>
+                                <span class="cart-badge" id="cartCount">0</span>
+                            </a>
                         </li>
+                        @{
+                            var userId = Context.Session.GetInt32("UserId");
+                            var userName = Context.Session.GetString("HoTen");
+                            var vaiTro = Context.Session.GetString("VaiTro");
+                        }
+                        @if (userId != null)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle account-link" href="#" data-bs-toggle="dropdown"><i class="fas fa-user-circle" aria-hidden="true"></i><span>@userName</span></a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-controller="HoSo" asp-action="Index">Hồ sơ của tôi</a></li>
+                                    <li><a class="dropdown-item" asp-controller="DonHang" asp-action="Index">Đơn hàng của tôi</a></li>
+                                    @if (vaiTro == "Admin" || vaiTro == "NhanVien")
+                                    {
+                                        <li><hr class="dropdown-divider" /></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Quản trị</a></li>
+                                    }
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="TaiKhoan" asp-action="DangXuat">Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a></li>
+                            <li class="nav-item"><a class="btn btn-warning account-cta" asp-controller="TaiKhoan" asp-action="DangKy">Đăng ký</a></li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+    <div id="storeToastRegion" class="store-toast-region" aria-live="polite" aria-atomic="true">
+        @if (TempData["Success"] != null)
+        {
+            <div class="toast show text-bg-success" role="status"><div class="d-flex"><div class="toast-body"><i class="fas fa-check-circle me-2"></i>@TempData["Success"]</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Đóng"></button></div></div>
+        }
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - VieITStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main class="store-main">@RenderBody()</main>
+
+    <footer class="store-footer">
+        <div class="container store-container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <a class="footer-brand" asp-controller="Home" asp-action="Index"><i class="fas fa-microchip"></i> VieITStore</a>
+                    <p class="mt-3">Linh kiện và phụ kiện công nghệ chính hãng, minh bạch giá bán và bảo hành tận tâm.</p>
+                </div>
+                <div class="col-6 col-lg-2"><h2 class="footer-title">Mua sắm</h2><ul class="footer-links"><li><a asp-controller="SanPham" asp-action="Index">Tất cả sản phẩm</a></li><li><a asp-controller="GioHang" asp-action="Index">Giỏ hàng</a></li><li><a asp-controller="DonHang" asp-action="Index">Đơn hàng</a></li></ul></div>
+                <div class="col-6 col-lg-2"><h2 class="footer-title">Chính sách</h2><ul class="footer-links"><li><span>Bảo hành chính hãng</span></li><li><span>Đổi trả trong 7 ngày</span></li><li><span>Bảo mật thông tin</span></li></ul></div>
+                <div class="col-lg-4 col-md-6"><h2 class="footer-title">Liên hệ</h2><ul class="footer-contact"><li><i class="fas fa-location-dot"></i><span>123 Nguyễn Văn A, Quận 1, TP.HCM</span></li><li><i class="fas fa-phone"></i><span>1900 1234</span></li><li><i class="fas fa-clock"></i><span>08:00–21:00, Thứ Hai–Chủ Nhật</span></li></ul></div>
+            </div>
+            <div class="footer-bottom">© @DateTime.Now.Year VieITStore. All rights reserved.</div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        window.storeUrls = { cartCount: '@Url.Action("GetCartCount", "GioHang")' };
+        document.addEventListener('DOMContentLoaded', function () { updateCartCount(); });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

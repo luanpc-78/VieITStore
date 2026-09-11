@@ -1,0 +1,74 @@
+@model ThanhToanVM
+@{ ViewData["Title"] = "Thanh toán"; }
+<div class="checkout-page"><div class="container store-container">
+    <div class="section-heading"><div><div class="section-kicker">Hoàn tất đơn hàng</div><h1 class="section-title">Thanh toán</h1></div><a asp-controller="GioHang" asp-action="Index" class="section-link"><i class="fas fa-arrow-left me-1"></i>Quay lại giỏ hàng</a></div>
+    <form asp-action="DatHang" method="post"><div asp-validation-summary="ModelOnly" class="alert alert-danger"></div><div class="row g-4"><div class="col-lg-7">
+        <section class="store-surface checkout-section"><h2 class="checkout-section-title"><i class="fas fa-box me-2 text-primary"></i>Phương thức nhận hàng</h2><div class="checkout-section-body"><div class="row g-3"><div class="col-md-6"><label class="choice-card" for="deliveryMethod"><input id="deliveryMethod" asp-for="HinhThucNhanHang" type="radio" value="GiaoTanNoi" class="form-check-input me-2" /><strong>Giao hàng tận nơi</strong><small class="d-block text-muted mt-2">Phí 30.000 đ, giao đến địa chỉ của bạn.</small></label></div><div class="col-md-6"><label class="choice-card" for="pickupMethod"><input id="pickupMethod" asp-for="HinhThucNhanHang" type="radio" value="NhanTaiCuaHang" class="form-check-input me-2" /><strong>Nhận tại cửa hàng</strong><small class="d-block text-muted mt-2">Miễn phí vận chuyển, chủ động thời gian nhận.</small></label></div></div></div></section>
+        <section class="store-surface checkout-section"><h2 class="checkout-section-title"><i class="fas fa-user me-2 text-primary"></i>Thông tin người nhận</h2><div class="checkout-section-body"><div class="row"><div class="col-md-6 mb-3"><label asp-for="HoTenNguoiNhan" class="form-label">Họ tên</label><input asp-for="HoTenNguoiNhan" class="form-control" required /><span asp-validation-for="HoTenNguoiNhan" class="text-danger"></span></div><div class="col-md-6 mb-3"><label asp-for="SoDienThoai" class="form-label">Số điện thoại</label><input asp-for="SoDienThoai" class="form-control" required /><span asp-validation-for="SoDienThoai" class="text-danger"></span></div></div>
+            <div id="deliveryAddress">@if (Model.DiaChiGiaoHangs.Any()) { <div class="mb-3"><label for="diaChiSelect" class="form-label">Địa chỉ đã lưu</label><select class="form-select" id="diaChiSelect" onchange="chonDiaChi(this)"><option value="">-- Nhập địa chỉ mới --</option>@foreach (var address in Model.DiaChiGiaoHangs) { <option value="@address.Id" data-hoten="@address.HoTenNguoiNhan" data-sdt="@address.SoDienThoai" data-tinh="@address.TinhThanh" data-quan="@address.QuanHuyen" data-phuong="@address.PhuongXa" data-diachi="@address.DiaChiChiTiet">@address.HoTenNguoiNhan - @address.DiaChiChiTiet, @address.PhuongXa, @address.QuanHuyen, @address.TinhThanh</option> }</select></div> }
+                <div class="row"><div class="col-md-4 mb-3"><label asp-for="TinhThanh" class="form-label">Tỉnh/Thành phố</label><select asp-for="TinhThanh" class="form-select address-required"><option value="">Chọn Tỉnh/TP</option><option>Hồ Chí Minh</option><option>Hà Nội</option><option>Đà Nẵng</option><option>Cần Thơ</option><option>Hải Phòng</option></select><span asp-validation-for="TinhThanh" class="text-danger"></span></div><div class="col-md-4 mb-3"><label asp-for="QuanHuyen" class="form-label">Quận/Huyện</label><input asp-for="QuanHuyen" class="form-control address-required" /><span asp-validation-for="QuanHuyen" class="text-danger"></span></div><div class="col-md-4 mb-3"><label asp-for="PhuongXa" class="form-label">Phường/Xã</label><input asp-for="PhuongXa" class="form-control address-required" /><span asp-validation-for="PhuongXa" class="text-danger"></span></div></div><div class="mb-3"><label asp-for="DiaChiChiTiet" class="form-label">Địa chỉ chi tiết</label><input asp-for="DiaChiChiTiet" class="form-control address-required" placeholder="Số nhà, tên đường..." /><span asp-validation-for="DiaChiChiTiet" class="text-danger"></span></div><div class="form-check"><input asp-for="LuuDiaChi" class="form-check-input" /><label asp-for="LuuDiaChi" class="form-check-label">Lưu địa chỉ này cho lần sau</label></div>
+            </div><div id="storePickup" class="alert alert-success mb-0 d-none"><h3 class="h6 fw-bold"><i class="fas fa-store me-2"></i>Nhận tại VieITStore</h3><div><strong>Địa chỉ:</strong> 123 Nguyễn Văn A, Quận 1, TP.HCM</div><div><strong>Giờ hoạt động:</strong> 08:00–21:00, Thứ Hai–Chủ Nhật</div><div class="mt-2">Vui lòng cung cấp mã đơn khi đến nhận hàng.</div></div><div class="mt-3"><label asp-for="GhiChu" class="form-label">Ghi chú</label><textarea asp-for="GhiChu" class="form-control" rows="3"></textarea></div>
+        </div></section>
+        <section class="store-surface checkout-section">
+            <h2 class="checkout-section-title"><i class="fas fa-wallet me-2 text-primary"></i>Phương thức thanh toán</h2>
+            <div class="checkout-section-body d-grid gap-2">
+                <label class="choice-card" for="paymentCod"><input id="paymentCod" asp-for="PhuongThucThanhToan" type="radio" value="COD" class="form-check-input me-2" /><strong id="codTitle">Thanh toán khi nhận hàng (COD)</strong><small id="codDescription" class="d-block text-muted mt-1">Thanh toán tiền mặt cho nhân viên giao hàng.</small></label>
+                <label class="choice-card" for="paymentBank"><input id="paymentBank" asp-for="PhuongThucThanhToan" type="radio" value="ChuyenKhoan" class="form-check-input me-2" /><strong>Chuyển khoản ngân hàng</strong><small class="d-block text-muted mt-1">Quét mã QR hoặc chuyển khoản theo thông tin bên dưới.</small></label>
+                <label class="choice-card" for="paymentWallet"><input id="paymentWallet" asp-for="PhuongThucThanhToan" type="radio" value="ViDienTu" class="form-check-input me-2" /><strong>Ví điện tử</strong><small class="d-block text-muted mt-1">Quét mã QR bằng ứng dụng ví điện tử.</small></label>
+
+                <div id="qrPaymentPanel" class="payment-qr-panel d-none" aria-live="polite">
+                    <div class="payment-qr-heading">
+                        <div><span class="badge text-bg-warning mb-2">QR DEMO</span><h3 id="qrPaymentTitle" class="h6 fw-bold mb-1"></h3><p class="small text-muted mb-0">Quét mã hoặc dùng thông tin thanh toán bên cạnh.</p></div>
+                    </div>
+                    <div class="payment-qr-content">
+                        <div class="payment-qr-image-wrap"><img id="paymentQrImage" class="payment-qr-image" width="210" height="210" alt="Mã QR thanh toán demo" /><span id="paymentQrLoading" class="small text-muted">Đang tạo mã QR...</span></div>
+                        <dl class="payment-transfer-info mb-0">
+                            <div><dt id="paymentProviderLabel">Ngân hàng</dt><dd id="paymentProvider"></dd></div>
+                            <div><dt id="paymentAccountLabel">Số tài khoản</dt><dd id="paymentAccount" class="fw-bold"></dd></div>
+                            <div><dt>Người nhận</dt><dd id="paymentReceiver"></dd></div>
+                            <div><dt>Số tiền</dt><dd id="paymentAmount" class="fw-bold text-danger"></dd></div>
+                            <div><dt>Nội dung thanh toán</dt><dd><code id="paymentContent" class="payment-content-code"></code></dd></div>
+                        </dl>
+                    </div>
+                    <div class="alert alert-warning small mb-0 mt-3"><i class="fas fa-circle-info me-1"></i>Đây là mã QR minh họa, không dùng để thanh toán thật.</div>
+                </div>
+            </div>
+        </section>
+    </div><aside class="col-lg-5"><div class="store-surface checkout-summary summary-card"><h2 class="h5 fw-bold mb-3">Đơn hàng của bạn</h2>@foreach (var item in Model.GioHang.Items) { <div class="summary-row"><span><span class="badge text-bg-secondary me-1">@item.SoLuong ×</span>@item.TenSanPham</span><strong>@item.ThanhTien.ToString("N0") đ</strong></div> }<hr /><div class="summary-row"><span>Tạm tính</span><span>@Model.GioHang.TongTien.ToString("N0") đ</span></div><div class="summary-row"><span>Phí vận chuyển</span><span id="shippingFee">30.000 đ</span></div><div class="summary-row border-top mt-2 pt-3"><strong class="fs-5">Tổng thanh toán</strong><strong id="checkoutTotal" data-subtotal="@Model.GioHang.TongTien" class="text-danger fs-4">@((Model.GioHang.TongTien + 30000).ToString("N0")) đ</strong></div><button type="submit" class="btn btn-success btn-lg w-100 mt-3"><i class="fas fa-circle-check me-2"></i>Đặt hàng</button><small class="text-muted d-block mt-2 text-center">Giá và phí vận chuyển được kiểm tra lại tại server.</small></div></aside></div></form>
+</div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /><script>
+function chonDiaChi(select){const o=select.options[select.selectedIndex];if(!o.value)return;document.getElementById('HoTenNguoiNhan').value=o.dataset.hoten;document.getElementById('SoDienThoai').value=o.dataset.sdt;document.getElementById('TinhThanh').value=o.dataset.tinh;document.getElementById('QuanHuyen').value=o.dataset.quan;document.getElementById('PhuongXa').value=o.dataset.phuong;document.getElementById('DiaChiChiTiet').value=o.dataset.diachi;}
+const demoPaymentCode='VIEIT'+Date.now().toString().slice(-8);
+function getCheckoutAmount(){const pickup=document.getElementById('pickupMethod').checked;return Number(document.getElementById('checkoutTotal').dataset.subtotal)+(pickup?0:30000);}
+function updateQrPayment(){
+    const selected=document.querySelector('[name="PhuongThucThanhToan"]:checked')?.value;
+    const panel=document.getElementById('qrPaymentPanel');
+    const isBank=selected==='ChuyenKhoan';
+    const isWallet=selected==='ViDienTu';
+    panel.classList.toggle('d-none',!isBank&&!isWallet);
+    if(!isBank&&!isWallet)return;
+    const amount=getCheckoutAmount();
+    const details=isBank
+        ?{title:'Thanh toán qua ngân hàng',providerLabel:'Ngân hàng',provider:'Vietcombank (demo)',accountLabel:'Số tài khoản',account:'0123456789',receiver:'CÔNG TY VIEITSTORE'}
+        :{title:'Thanh toán qua ví điện tử',providerLabel:'Ví điện tử',provider:'MoMo (demo)',accountLabel:'Số điện thoại',account:'0901 234 567',receiver:'VIEITSTORE'};
+    document.getElementById('qrPaymentTitle').textContent=details.title;
+    document.getElementById('paymentProviderLabel').textContent=details.providerLabel;
+    document.getElementById('paymentProvider').textContent=details.provider;
+    document.getElementById('paymentAccountLabel').textContent=details.accountLabel;
+    document.getElementById('paymentAccount').textContent=details.account;
+    document.getElementById('paymentReceiver').textContent=details.receiver;
+    document.getElementById('paymentAmount').textContent=amount.toLocaleString('vi-VN')+' đ';
+    document.getElementById('paymentContent').textContent=demoPaymentCode;
+    const qrPayload=[details.title,details.provider,details.account,details.receiver,amount,demoPaymentCode].join('|');
+    const qrImage=document.getElementById('paymentQrImage');
+    const loading=document.getElementById('paymentQrLoading');
+    loading.classList.remove('d-none');
+    qrImage.classList.add('d-none');
+    qrImage.onload=()=>{loading.classList.add('d-none');qrImage.classList.remove('d-none');};
+    qrImage.onerror=()=>{loading.textContent='Không thể tải mã QR demo.';};
+    qrImage.src='https://api.qrserver.com/v1/create-qr-code/?size=210x210&margin=8&data='+encodeURIComponent(qrPayload);
+}
+function updateReceivingMethod(){const pickup=document.getElementById('pickupMethod').checked;document.getElementById('deliveryAddress').classList.toggle('d-none',pickup);document.getElementById('storePickup').classList.toggle('d-none',!pickup);document.querySelectorAll('.address-required').forEach(x=>x.required=!pickup);document.getElementById('shippingFee').textContent=pickup?'0 đ':'30.000 đ';const total=document.getElementById('checkoutTotal');total.textContent=getCheckoutAmount().toLocaleString('vi-VN')+' đ';document.getElementById('codTitle').textContent=pickup?'Thanh toán khi nhận tại cửa hàng':'Thanh toán khi nhận hàng (COD)';document.getElementById('codDescription').textContent=pickup?'Thanh toán tiền mặt khi đến VieITStore nhận hàng.':'Thanh toán tiền mặt cho nhân viên giao hàng.';updateQrPayment();}
+document.querySelectorAll('[name="HinhThucNhanHang"]').forEach(x=>x.addEventListener('change',updateReceivingMethod));updateReceivingMethod();
+document.querySelectorAll('[name="PhuongThucThanhToan"]').forEach(x=>x.addEventListener('change',updateQrPayment));updateQrPayment();
+</script> }

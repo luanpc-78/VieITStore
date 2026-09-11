@@ -1,0 +1,113 @@
+@model TaoPhieuDieuChinhTonKhoVM
+@{
+    ViewData["Title"] = "Tạo phiếu xuất kho/điều chỉnh";
+    var products = ViewBag.SanPhams as List<SanPham> ?? [];
+}
+
+<div class="card">
+    <div class="card-header"><h5 class="mb-0">Tạo phiếu xuất kho hoặc điều chỉnh tồn</h5></div>
+    <div class="card-body">
+        <div class="alert alert-info"><i class="fas fa-info-circle"></i> Phiếu sau khi ghi nhận không thể sửa hoặc xóa. Nếu có sai lệch, hãy tạo phiếu điều chỉnh mới.</div>
+        <form asp-action="Create" method="post" id="stockForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label asp-for="LoaiGiaoDich" class="form-label">Loại giao dịch</label>
+                    <select asp-for="LoaiGiaoDich" class="form-select" required>
+                        <option value="">-- Chọn loại giao dịch --</option>
+                        <option value="1">Xuất nội bộ</option>
+                        <option value="2">Hàng lỗi</option>
+                        <option value="3">Điều chỉnh tăng</option>
+                        <option value="4">Điều chỉnh giảm</option>
+                    </select>
+                    <span asp-validation-for="LoaiGiaoDich" class="text-danger"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="LyDo" class="form-label">Lý do/Ghi chú</label>
+                    <textarea asp-for="LyDo" class="form-control" rows="2" maxlength="500" required></textarea>
+                    <span asp-validation-for="LyDo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <h6>Chi tiết sản phẩm</h6>
+            <span asp-validation-for="ChiTiets" class="text-danger d-block mb-2"></span>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light"><tr><th>Sản phẩm</th><th style="width:140px">Tồn hiện tại</th><th style="width:180px">Số lượng thay đổi</th><th style="width:55px"></th></tr></thead>
+                    <tbody id="detailRows">
+                    @for (var index = 0; index < Model.ChiTiets.Count; index++)
+                    {
+                        <tr>
+                            <td>
+                                <select name="ChiTiets[@index].SanPhamId" class="form-select product-select" required>
+                                    <option value="">-- Chọn sản phẩm --</option>
+                                    @foreach (var product in products)
+                                    {
+                                        <option value="@product.Id" data-stock="@product.SoLuongTon" selected="@(Model.ChiTiets[index].SanPhamId == product.Id)">@product.MaSanPham - @product.TenSanPham</option>
+                                    }
+                                </select>
+                            </td>
+                            <td class="current-stock text-center">-</td>
+                            <td><input name="ChiTiets[@index].SoLuongThayDoi" value="@Model.ChiTiets[index].SoLuongThayDoi" type="number" min="1" class="form-control" required /></td>
+                            <td><button type="button" class="btn btn-outline-danger remove-row"><i class="fas fa-times"></i></button></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" id="addRow" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
+
+            <div class="text-end mt-4">
+                <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-success" onclick="return confirm('Ghi nhận phiếu và cập nhật tồn kho ngay?')"><i class="fas fa-save"></i> Ghi nhận phiếu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const products = @Html.Raw(Json.Serialize(products.Select(p => new { p.Id, p.MaSanPham, p.TenSanPham, p.SoLuongTon })));
+        const rows = document.getElementById('detailRows');
+
+        function productOptions() {
+            return '<option value="">-- Chọn sản phẩm --</option>' + products.map(p =>
+                `<option value="${p.id}" data-stock="${p.soLuongTon}">${p.maSanPham} - ${p.tenSanPham}</option>`).join('');
+        }
+
+        function reindexRows() {
+            [...rows.querySelectorAll('tr')].forEach((row, index) => {
+                row.querySelector('.product-select').name = `ChiTiets[${index}].SanPhamId`;
+                row.querySelector('input[type="number"]').name = `ChiTiets[${index}].SoLuongThayDoi`;
+            });
+        }
+
+        function updateStock(select) {
+            const option = select.options[select.selectedIndex];
+            select.closest('tr').querySelector('.current-stock').textContent = option?.dataset.stock ?? '-';
+        }
+
+        document.getElementById('addRow').addEventListener('click', () => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td><select class="form-select product-select" required>${productOptions()}</select></td>
+                <td class="current-stock text-center">-</td>
+                <td><input type="number" min="1" value="1" class="form-control" required /></td>
+                <td><button type="button" class="btn btn-outline-danger remove-row"><i class="fas fa-times"></i></button></td>`;
+            rows.appendChild(row);
+            reindexRows();
+        });
+
+        rows.addEventListener('change', event => {
+            if (event.target.classList.contains('product-select')) updateStock(event.target);
+        });
+        rows.addEventListener('click', event => {
+            const button = event.target.closest('.remove-row');
+            if (!button || rows.children.length === 1) return;
+            button.closest('tr').remove();
+            reindexRows();
+        });
+        document.querySelectorAll('.product-select').forEach(updateStock);
+        reindexRows();
+    </script>
+}

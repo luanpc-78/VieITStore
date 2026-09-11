@@ -1,0 +1,82 @@
+@model SerialSanPhamVM
+@{
+    var isEdit = Model.Id > 0;
+}
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="MaSerial" class="form-label"></label>
+        <input asp-for="MaSerial" class="form-control text-uppercase" autocomplete="off" />
+        <span asp-validation-for="MaSerial" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="SanPhamId" class="form-label"></label>
+        <select asp-for="SanPhamId" asp-items="ViewBag.SanPhams" class="form-select">
+            <option value="0">-- Chọn sản phẩm --</option>
+        </select>
+        <span asp-validation-for="SanPhamId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ChiTietPhieuNhapId" class="form-label"></label>
+        <select asp-for="ChiTietPhieuNhapId" asp-items="ViewBag.PhieuNhaps" class="form-select">
+            <option value="">-- Chưa liên kết nguồn nhập --</option>
+        </select>
+        <div class="form-text">Chỉ chọn dòng nhập của đúng sản phẩm.</div>
+        <span asp-validation-for="ChiTietPhieuNhapId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ChiTietDonHangId" class="form-label"></label>
+        <select asp-for="ChiTietDonHangId" asp-items="ViewBag.DonHangs" class="form-select">
+            <option value="">-- Chưa bán --</option>
+        </select>
+        <div class="form-text">Khi gán dòng bán, trạng thái và hạn bảo hành được tính ở server.</div>
+        <span asp-validation-for="ChiTietDonHangId" class="text-danger"></span>
+    </div>
+    @if (isEdit)
+    {
+        <div class="col-md-6">
+            <label asp-for="TrangThai" class="form-label"></label>
+            <select asp-for="TrangThai" asp-items="Html.GetEnumSelectList<TrangThaiSerial>()" class="form-select"></select>
+            <span asp-validation-for="TrangThai" class="text-danger"></span>
+        </div>
+    }
+    else
+    {
+        <input asp-for="TrangThai" type="hidden" />
+    }
+    <div class="@(isEdit ? "col-md-6" : "col-12")">
+        <label asp-for="GhiChu" class="form-label"></label>
+        <textarea asp-for="GhiChu" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="GhiChu" class="text-danger"></span>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const receiptProducts = @Html.Raw(Json.Serialize(ViewBag.PhieuNhapSanPhamIds));
+        const orderProducts = @Html.Raw(Json.Serialize(ViewBag.DonHangSanPhamIds));
+        const productSelect = document.getElementById('SanPhamId');
+        const receiptSelect = document.getElementById('ChiTietPhieuNhapId');
+        const orderSelect = document.getElementById('ChiTietDonHangId');
+
+        const filterOptions = (select, productMap) => {
+            const productId = Number(productSelect.value);
+            [...select.options].forEach(option => {
+                if (!option.value) return;
+                const matches = productId > 0 && Number(productMap[option.value]) === productId;
+                option.hidden = !matches;
+                option.disabled = !matches;
+            });
+            if (select.value && select.selectedOptions[0]?.disabled) select.value = '';
+        };
+
+        const syncSelections = () => {
+            filterOptions(receiptSelect, receiptProducts);
+            filterOptions(orderSelect, orderProducts);
+        };
+
+        productSelect.addEventListener('change', syncSelections);
+        syncSelections();
+    })();
+</script>

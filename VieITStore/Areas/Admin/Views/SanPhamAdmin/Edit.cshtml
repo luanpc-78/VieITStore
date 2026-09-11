@@ -1,0 +1,201 @@
+@model VieITStore.Models.Entities.SanPham
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+    var danhMucs = ViewBag.DanhMucs as List<VieITStore.Models.Entities.DanhMuc>;
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Chỉnh sửa sản phẩm</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            }
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="NgayTao" />
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label asp-for="MaSanPham" class="form-label"></label>
+                        <input asp-for="MaSanPham" class="form-control" required>
+                        <span asp-validation-for="MaSanPham" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="MaVach" class="form-label">Mã vạch</label>
+                        <input asp-for="MaVach" class="form-control" placeholder="Có thể để trống" />
+                        <span asp-validation-for="MaVach" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="TenSanPham" class="form-label"></label>
+                        <input asp-for="TenSanPham" class="form-control" required>
+                        <span asp-validation-for="TenSanPham" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DanhMucId" class="form-label"></label>
+                            <select asp-for="DanhMucId" class="form-select" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                @foreach (var dm in danhMucs ?? new List<VieITStore.Models.Entities.DanhMuc>())
+                                {
+                                    <option value="@dm.Id" selected="@(dm.Id == Model.DanhMucId)">@dm.TenDanhMuc</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ThuongHieu" class="form-label"></label>
+                            <input asp-for="ThuongHieu" class="form-control" placeholder="VD: Intel, Samsung, Logitech...">
+                        </div>
+                    </div>
+
+                    <div class="row align-items-end">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="MauId" class="form-label">Màu sắc</label>
+                            <select asp-for="MauId" asp-items="ViewBag.Maus" class="form-select">
+                                <option value="">-- Không chọn màu --</option>
+                            </select>
+                            <span asp-validation-for="MauId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label for="tenMauMoi" class="form-label">Hoặc thêm màu mới</label>
+                            <input id="tenMauMoi" name="tenMauMoi" value="@ViewBag.TenMauMoi" class="form-control" placeholder="VD: Xanh navy">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="maMauMoi" class="form-label">Mã màu</label>
+                            <input id="maMauMoi" name="maMauMoi" type="color" value="@(ViewBag.MaMauMoi ?? "#000000")" class="form-control form-control-color w-100" title="Chọn màu mới">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="GiaNhap" class="form-label"></label>
+                            <input asp-for="GiaNhap" type="hidden" id="GiaNhapValue">
+                            <div class="input-group">
+                                <input id="GiaNhap" type="text" class="form-control text-end" inputmode="numeric"
+                                       data-currency-input data-currency-target="GiaNhapValue"
+                                       aria-label="Giá nhập" autocomplete="off" required>
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="GiaBan" class="form-label"></label>
+                            <input asp-for="GiaBan" type="hidden" id="GiaBanValue">
+                            <div class="input-group">
+                                <input id="GiaBan" type="text" class="form-control text-end" inputmode="numeric"
+                                       data-currency-input data-currency-target="GiaBanValue"
+                                       aria-label="Giá bán" autocomplete="off" required>
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="GiaKhuyenMai" class="form-label"></label>
+                            <input asp-for="GiaKhuyenMai" type="hidden" id="GiaKhuyenMaiValue">
+                            <div class="input-group">
+                                <input id="GiaKhuyenMai" type="text" class="form-control text-end" inputmode="numeric"
+                                       data-currency-input data-currency-target="GiaKhuyenMaiValue"
+                                       aria-label="Giá giảm" autocomplete="off" placeholder="Để trống nếu không KM">
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="SoLuongTon" class="form-label"></label>
+                            <input asp-for="SoLuongTon" type="number" class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="BaoHanh" class="form-label"></label>
+                            <input asp-for="BaoHanh" type="number" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="XuatXu" class="form-label"></label>
+                            <input asp-for="XuatXu" class="form-control" placeholder="VD: Trung Quốc, Hàn Quốc...">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MoTaNgan" class="form-label"></label>
+                        <input asp-for="MoTaNgan" class="form-control" placeholder="Mô tả ngắn gọn (1 dòng)">
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MoTaChiTiet" class="form-label"></label>
+                        <textarea asp-for="MoTaChiTiet" class="form-control" rows="5" placeholder="Mô tả chi tiết sản phẩm..."></textarea>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header">Cài đặt</div>
+                        <div class="card-body">
+                            <div class="form-check mb-2">
+                                <input asp-for="NoiBat" class="form-check-input" type="checkbox">
+                                <label asp-for="NoiBat" class="form-check-label">Sản phẩm nổi bật</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input asp-for="TrangThai" class="form-check-input" type="checkbox">
+                                <label asp-for="TrangThai" class="form-check-label">Đang bán</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Hình ảnh</div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">Ảnh hiện tại:</label>
+                                    <img src="@Model.HinhAnh" alt="Current Image" class="img-fluid" style="max-height: 200px;">
+                                </div>
+                            }
+
+                            <div class="mb-3">
+                                <label for="hinhAnh" class="form-label">Thay đổi ảnh</label>
+                                <input type="file" id="hinhAnh" name="hinhAnh" class="form-control" accept="image/*">
+                                <small class="text-muted d-block mt-2">
+                                    Định dạng: JPG, PNG, GIF, WebP (Max 5MB)
+                                </small>
+                            </div>
+
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <label class="form-label">Ảnh mới preview:</label>
+                                <img id="previewImg" src="" alt="Preview" class="img-fluid" style="max-height: 200px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-3">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-warning"><i class="fas fa-edit"></i> Cập nhật sản phẩm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/currency-input.js" asp-append-version="true"></script>
+
+    <script>
+        document.getElementById('hinhAnh').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('previewImg').src = event.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}

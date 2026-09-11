@@ -1,0 +1,6 @@
+@model IEnumerable<VieITStore.Models.Entities.DanhMuc>
+@{ ViewData["Title"] = "Danh mục"; }
+<div class="d-flex justify-content-between mb-3"><h3>Quản lý danh mục</h3><a asp-action="Create" class="btn btn-primary">Thêm danh mục</a></div>
+<table class="table table-striped"><thead><tr><th>Tên</th><th>Thứ tự</th><th>Sản phẩm</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+@foreach(var item in Model){<tr><td>@item.TenDanhMuc</td><td>@item.ThuTu</td><td>@item.SanPhams.Count</td><td>@(item.HienThi ? "Hiển thị" : "Đã ẩn")</td><td><a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a> <form asp-action="Toggle" asp-route-id="@item.Id" method="post" class="d-inline"><button class="btn btn-sm btn-secondary">@(item.HienThi ? "Ẩn" : "Hiện")</button></form></td></tr>}
+</tbody></table>

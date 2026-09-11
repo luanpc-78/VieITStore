@@ -1,0 +1,9 @@
+@model SerialSanPhamVM
+@{ ViewData["Title"] = "Thêm serial/IMEI"; }
+<div class="card"><div class="card-header"><strong>Thêm serial/IMEI</strong></div><div class="card-body">
+    <form asp-action="Create" method="post">
+        <partial name="_Form" model="Model" />
+        <div class="mt-4"><button class="btn btn-primary"><i class="fas fa-save"></i> Lưu serial</button> <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a></div>
+    </form>
+</div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

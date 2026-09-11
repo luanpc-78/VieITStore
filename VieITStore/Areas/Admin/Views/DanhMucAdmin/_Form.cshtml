@@ -1,0 +1,7 @@
+@model VieITStore.Models.Entities.DanhMuc
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3"><label asp-for="TenDanhMuc" class="form-label">Tên danh mục</label><input asp-for="TenDanhMuc" class="form-control"/><span asp-validation-for="TenDanhMuc" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MoTa" class="form-label">Mô tả</label><textarea asp-for="MoTa" class="form-control"></textarea></div>
+<div class="mb-3"><label asp-for="ThuTu" class="form-label">Thứ tự</label><input asp-for="ThuTu" class="form-control"/></div>
+<div class="form-check mb-3"><input asp-for="HienThi" class="form-check-input"/><label asp-for="HienThi" class="form-check-label">Hiển thị</label></div>
+<button class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-secondary">Quay lại</a>

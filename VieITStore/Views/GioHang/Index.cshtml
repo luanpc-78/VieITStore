@@ -1,0 +1,27 @@
+@model GioHangVM
+@{ ViewData["Title"] = "Giỏ hàng"; }
+<div class="cart-page"><div class="container store-container">
+    <div class="section-heading"><div><div class="section-kicker">Đơn hàng của bạn</div><h1 class="section-title">Giỏ hàng</h1></div><a asp-controller="SanPham" asp-action="Index" class="section-link"><i class="fas fa-arrow-left me-1"></i>Tiếp tục mua sắm</a></div>
+    @if (TempData["Error"] != null) { <div class="alert alert-danger" role="alert">@TempData["Error"]</div> }
+    @if (!Model.Items.Any())
+    {
+        <div class="empty-state"><i class="fas fa-cart-shopping fa-3x text-muted mb-3"></i><h2 class="h4">Giỏ hàng đang trống</h2><p class="text-muted">Hãy chọn thêm sản phẩm phù hợp với bạn.</p><a asp-controller="SanPham" asp-action="Index" class="btn btn-primary">Khám phá sản phẩm</a></div>
+    }
+    else
+    {
+        @if (!Model.CoTheThanhToan) { <div class="alert alert-warning"><i class="fas fa-triangle-exclamation me-2"></i>Giỏ hàng có sản phẩm không hợp lệ. Vui lòng cập nhật hoặc xóa trước khi thanh toán.</div> }
+        <div class="row g-4">
+            <div class="col-lg-8"><div class="store-surface cart-table-card"><div class="table-responsive"><table class="table align-middle mb-0 cart-table">
+                <thead><tr><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th>Số lượng</th><th class="text-end">Thành tiền</th><th><span class="visually-hidden">Thao tác</span></th></tr></thead>
+                <tbody>@foreach (var item in Model.Items) { <tr class="@(!item.HopLe ? "table-warning" : "")">
+                    <td data-label="Sản phẩm"><div class="d-flex align-items-center gap-3"><img src="@(item.HinhAnh ?? "/images/no-image.jpg")" alt="@item.TenSanPham" class="cart-product-image" /><div><div class="fw-bold">@item.TenSanPham</div><small class="text-muted">SKU: @item.MaSanPham · Tồn: @item.SoLuongTon</small>@if (item.CanhBao != null) { <div class="text-danger small fw-bold mt-1">@item.CanhBao</div> }</div></div></td>
+                    <td data-label="Đơn giá" class="text-end fw-semibold">@item.DonGia.ToString("N0") đ</td>
+                    <td data-label="Số lượng"><form asp-action="CapNhatSoLuong" method="post" class="d-flex gap-2"><input type="hidden" name="sanPhamId" value="@item.SanPhamId" /><input type="number" name="soLuong" value="@item.SoLuong" min="0" max="@item.SoLuongTon" class="form-control form-control-sm text-center" style="width:76px" aria-label="Số lượng @item.TenSanPham" /><button class="btn btn-sm btn-outline-primary" title="Cập nhật" aria-label="Cập nhật số lượng @item.TenSanPham"><i class="fas fa-rotate"></i></button></form></td>
+                    <td data-label="Thành tiền" class="text-end fw-bold text-primary">@item.ThanhTien.ToString("N0") đ</td>
+                    <td data-label="Xóa"><form asp-action="XoaSanPham" method="post"><input type="hidden" name="sanPhamId" value="@item.SanPhamId" /><button class="btn btn-sm btn-outline-danger" title="Xóa" aria-label="Xóa @item.TenSanPham khỏi giỏ" onclick="return confirm('Xóa sản phẩm khỏi giỏ?')"><i class="fas fa-trash"></i></button></form></td>
+                </tr> }</tbody>
+            </table></div></div></div>
+            <aside class="col-lg-4"><div class="store-surface cart-summary summary-card"><h2 class="h5 fw-bold mb-3">Tóm tắt giỏ hàng</h2><div class="summary-row"><span>Tổng số lượng</span><strong>@Model.TongSoLuong</strong></div><div class="summary-row border-top mt-2 pt-3"><span>Tạm tính</span><strong class="text-danger fs-4">@Model.TongTien.ToString("N0") đ</strong></div><p class="small text-muted">Phí vận chuyển được tính theo hình thức nhận hàng ở bước thanh toán.</p>@if (Model.CoTheThanhToan) { <a asp-controller="ThanhToan" asp-action="Index" class="btn btn-success btn-lg w-100"><i class="fas fa-lock me-2"></i>Thanh toán an toàn</a> } else { <button class="btn btn-secondary btn-lg w-100" disabled>Chưa thể thanh toán</button> }</div></aside>
+        </div>
+    }
+</div></div>
